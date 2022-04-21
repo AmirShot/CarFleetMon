@@ -39,6 +39,7 @@ class ObdClient:
 
         # start thread of send updates
         self.t = threading.Thread(target=self.send_update)
+        self.t.start()
         #####################################################
 
     def send_update(self):
@@ -64,6 +65,7 @@ class ObdClient:
         ########################################
 
         # main loop
+        print(f"Sample: {self.connection.sample(sample)}")
         while self.connection.sample(sample):
             time_diff_measured = (sample.timeStamp - current_time_stamp).microseconds / 1000000
             self.CurrentRideTotalDistance += sample.speed * time_diff_measured / 3600
@@ -95,6 +97,7 @@ class ObdClient:
 
             # send message
             bits = message.SerializeToString() # string of bits
+            print(bits)
             self.directSocket.send(bits)
             ##############################
 

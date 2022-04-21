@@ -31,6 +31,7 @@ class ConnectionWrap:
             print(f"Connected by {addr}")
             while self._running:
                 self._data = conn.recv(1024)
+                print(self._data)
                 #send time interval to wait before next sending
                 conn.send(str(self._nextTime).encode())
 

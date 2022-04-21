@@ -30,6 +30,7 @@ class ConnectionManager:
                     print(f"connWrap: {self.conWrap[plate]}")
                 print(self.conWrap[plate].get_socket().getsockname()[1])
                 conn.send(str(self.conWrap[plate].get_socket().getsockname()[1]).encode())
+
                 print("sent new socket")
 
     def stop_server(self):

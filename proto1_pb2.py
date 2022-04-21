@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='proto1.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x0cproto1.proto\"\xe4\x01\n\x08\x43urrData\x12\x0e\n\x06\x43\x41R_ID\x18\x01 \x01(\t\x12\x0b\n\x03RPM\x18\x02 \x01(\x01\x12\r\n\x05SPEED\x18\x03 \x01(\x02\x12\x10\n\x08RUN_TIME\x18\x04 \x01(\r\x12\x1e\n\x16\x43ONTROL_MODULE_VOLTAGE\x18\x05 \x01(\r\x12\x18\n\x10\x41MBIANT_AIR_TEMP\x18\x06 \x01(\r\x12\x11\n\tFUEL_TYPE\x18\x07 \x01(\t\x12\x10\n\x08OIL_TEMP\x18\x08 \x01(\r\x12\x18\n\x10\x46UEL_CONSUMPTION\x18\t \x01(\x02\x12!\n\x19TOTAL_DISTANCE_SINCE_JOIN\x18\n \x01(\x02\x62\x06proto3')
+  serialized_pb=_b('\n\x0cproto1.proto\"\xf1\x01\n\x08\x43urrData\x12\x0e\n\x06\x43\x41R_ID\x18\x01 \x01(\t\x12\x0b\n\x03RPM\x18\x02 \x01(\x01\x12\r\n\x05SPEED\x18\x03 \x01(\x02\x12\x10\n\x08RUN_TIME\x18\x04 \x01(\x02\x12\x1e\n\x16\x43ONTROL_MODULE_VOLTAGE\x18\x05 \x01(\x02\x12\x18\n\x10\x41MBIANT_AIR_TEMP\x18\x06 \x01(\x02\x12\x11\n\tFUEL_TYPE\x18\x07 \x01(\t\x12\x10\n\x08OIL_TEMP\x18\x08 \x01(\x02\x12\x18\n\x10\x46UEL_CONSUMPTION\x18\t \x01(\x02\x12!\n\x19TOTAL_DISTANCE_SINCE_JOIN\x18\n \x01(\x02\x12\x0b\n\x03\x44TC\x18\x0b \x01(\tb\x06proto3')
 )
 
 
@@ -55,22 +55,22 @@ _CURRDATA = _descriptor.Descriptor(
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='RUN_TIME', full_name='CurrData.RUN_TIME', index=3,
-      number=4, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
+      number=4, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='CONTROL_MODULE_VOLTAGE', full_name='CurrData.CONTROL_MODULE_VOLTAGE', index=4,
-      number=5, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
+      number=5, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='AMBIANT_AIR_TEMP', full_name='CurrData.AMBIANT_AIR_TEMP', index=5,
-      number=6, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
+      number=6, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -83,8 +83,8 @@ _CURRDATA = _descriptor.Descriptor(
       options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='OIL_TEMP', full_name='CurrData.OIL_TEMP', index=7,
-      number=8, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
+      number=8, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
@@ -102,6 +102,13 @@ _CURRDATA = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='DTC', full_name='CurrData.DTC', index=10,
+      number=11, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -115,7 +122,7 @@ _CURRDATA = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=17,
-  serialized_end=245,
+  serialized_end=258,
 )
 
 DESCRIPTOR.message_types_by_name['CurrData'] = _CURRDATA
