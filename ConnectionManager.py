@@ -19,6 +19,7 @@ class ConnectionManager:
         conn, addr = self._mainSocket.accept()
         with conn:
             print(f"Connected by {addr}")
+            conn.settimeout(40)
             while self._running:
                 data = conn.recv(1024).decode()
                 plate = data #maybe split
@@ -30,8 +31,10 @@ class ConnectionManager:
                     print(f"connWrap: {self.conWrap[plate]}")
                 print(self.conWrap[plate].get_socket().getsockname()[1])
                 conn.send(str(self.conWrap[plate].get_socket().getsockname()[1]).encode())
-
                 print("sent new socket")
+                conn.recv(1024)
+                conn.send(str(self.nextTime).encode())
+
 
     def stop_server(self):
         self._running = False
