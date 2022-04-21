@@ -13,7 +13,7 @@ class ConnectionWrap:
         self._connectionManager = connection_manager
         self._port = 0
         self._running = True
-        self._thread = threading.Thread(target=self.run_socket, args=host)
+        self._thread = threading.Thread(target=self.run_socket, args=(host,))
         self._nextTime = next_time
         self._thread.start()
 
@@ -29,9 +29,9 @@ class ConnectionWrap:
         conn, addr = self._socket.accept()
         with conn:
             print(f"Connected by {addr}")
-            while self._runnning:
+            while self._running:
                 self._data = conn.recv(1024)
-                #TODO: send time interval to wait before next sending
+                #send time interval to wait before next sending
                 conn.send(str(self._nextTime).encode())
 
     def get_socket(self):

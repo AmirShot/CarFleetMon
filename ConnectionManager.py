@@ -9,7 +9,8 @@ class ConnectionManager:
         self.conWrap = dict()
         self._running = True
         self.nextTime = 10
-        self._thread = threading.Thread(target=self.run_main_socket, args=host)
+        print(host)
+        self._thread = threading.Thread(target=self.run_main_socket, args=(host,))
         self._thread.start()
 
     def run_main_socket(self, host):
@@ -21,13 +22,23 @@ class ConnectionManager:
             while self._running:
                 data = conn.recv(1024).decode()
                 plate = data #maybe split
-                if not self.conWrap[plate]:
+                print(f"plate: {plate}")
+
+                if plate not in self.conWrap:
+                    print("not exist")
                     self.conWrap[plate] = ConnectionWrap(plate, self, host, self.nextTime)
-                self._mainSocket.send(str(self.conWrap[plate].get_socket().getsockname()[1]).encode())
+                    print(f"connWrap: {self.conWrap[plate]}")
+                print(self.conWrap[plate].get_socket().getsockname()[1])
+                conn.send(str(self.conWrap[plate].get_socket().getsockname()[1]).encode())
+                print("sent new socket")
 
     def stop_server(self):
         self._running = False
         self._thread.join()
 
+
+
+if __name__ == "__main__":
+    server = ConnectionManager("127.0.0.1")
 
 

@@ -31,9 +31,10 @@ class ObdClient:
         s.connect(("127.0.0.1", port))
         s.send(self.ID.encode())
         newPort = s.recv(1024).decode()
+        print(newPort)
         s.close()
         self.directSocket = socket.socket()
-        self.directSocket.connect(("127.0.0.1", newPort))
+        self.directSocket.connect(("127.0.0.1", int(newPort)))
         #####################################################
 
         # start thread of send updates
@@ -109,4 +110,4 @@ class ObdClient:
 
 
 if __name__ == "__main__":
-    pass
+    client = ObdClient()
