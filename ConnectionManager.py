@@ -10,30 +10,35 @@ class ConnectionManager:
         self._running = True
         self.nextTime = 10
         print(host)
-        self._thread = threading.Thread(target=self.run_main_socket, args=(host,))
-        self._thread.start()
 
-    def run_main_socket(self, host):
-        self._mainSocket.bind((host, self._mainPort))
-        self._mainSocket.listen()
-        conn, addr = self._mainSocket.accept()
+        while self._running:
+            self._mainSocket.bind((host, self._mainPort))
+            self._mainSocket.listen()
+            conn, addr = self._mainSocket.accept()
+            self._thread = threading.Thread(target=self.run_main_socket, args=(host, conn))
+            self._thread.start()
+
+
+    def run_main_socket(self, host,conn):
         with conn:
-            print(f"Connected by {addr}")
-            conn.settimeout(40)
-            while self._running:
-                data = conn.recv(1024).decode()
-                plate = data #maybe split
-                print(f"plate: {plate}")
+            conn.settimeout(100000000)
+            data = conn.recv(1024).decode()
+            plate = data #maybe split
+            print(f"plate: {plate}")
 
-                if plate not in self.conWrap:
-                    print("not exist")
-                    self.conWrap[plate] = ConnectionWrap(plate, self, host, self.nextTime)
-                    print(f"connWrap: {self.conWrap[plate]}")
-                print(self.conWrap[plate].get_socket().getsockname()[1])
-                conn.send(str(self.conWrap[plate].get_socket().getsockname()[1]).encode())
-                print("sent new socket")
-                conn.recv(1024)
-                conn.send(str(self.nextTime).encode())
+            if plate not in self.conWrap:
+                print("not exist")
+                self.conWrap[plate] = ConnectionWrap(plate, self, host, self.nextTime)
+                print(f"connWrap: {self.conWrap[plate]}")
+            print(self.conWrap[plate].get_socket().getsockname()[1])
+            conn.send(str(self.conWrap[plate].get_socket().getsockname()[1]).encode())
+            print("sent new socket")
+
+
+            conn.recv(1024)
+            conn.send(str(self.nextTime).encode())
+
+
 
 
     def stop_server(self):
