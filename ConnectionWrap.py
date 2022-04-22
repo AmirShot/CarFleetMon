@@ -35,6 +35,7 @@ class ConnectionWrap:
                 #send time interval to wait before next sending
                 conn.send(str(self._nextTime).encode())
 
+
     def get_socket(self):
         return self._socket
 

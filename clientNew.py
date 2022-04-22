@@ -33,11 +33,10 @@ class ObdClient:
         s.connect(("127.0.0.1", port))
         s.send(self.ID.encode())
         newPort = s.recv(1024).decode()
+
         print(newPort)
         self.directSocket = socket.socket()
         self.directSocket.connect(("127.0.0.1", int(newPort)))
-        self.directSocket.send("ACK".encode())
-        self.timeToWait = int(self.directSocket.recv(1024).decode())
         #####################################################
 
         # read first sample
@@ -68,8 +67,6 @@ class ObdClient:
             print("no kms were written")
         file.close()
         ####################################
-
-
 
         # main loop
         print(f"Sample: {self.connection.sample(self.sample)}")
@@ -110,6 +107,7 @@ class ObdClient:
             bits = message.SerializeToString()  # string of bits
             print(bits)
             self.directSocket.send(bits)
+            self.timeToWait = int(self.directSocket.recv(1024).decode())
             ##############################
             time.sleep(self.timeToWait)
 
