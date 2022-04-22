@@ -7,7 +7,7 @@ class ConnectionWrap:
     def __init__(self, licence_plate, connection_manager, host, next_time):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._data = ""
-        self._active = True
+        self._active = False
         self._idleCounter = 0
         self._licencePlate = licence_plate
         self._connectionManager = connection_manager
@@ -31,6 +31,7 @@ class ConnectionWrap:
             print(f"Connected by {addr}")
             while self._running:
                 self._data = conn.recv(1024)
+                self._active = True
                 print(self._data)
                 #send time interval to wait before next sending
                 conn.send(str(self._nextTime).encode())
@@ -43,7 +44,6 @@ class ConnectionWrap:
         self._nextTime = next_time
         if self._active:
             result = self._data
-            self._data = None
             self._active = False
             return result
         else:
@@ -55,6 +55,11 @@ class ConnectionWrap:
     def get_licence_plate(self):
         return self._licencePlate
 
+    def is_active(self):
+        return self._active
+
+    def get_data(self):
+        return self._data
 
 
 
