@@ -1,6 +1,7 @@
 import threading
 import time
 from proto1_pb2 import *
+from SQL_ORM import *
 
 
 class DataManager:
@@ -11,6 +12,7 @@ class DataManager:
         self._running = True
         self._thread = threading.Thread(target=self.update)
         self._thread.start()
+        self._sql_orm = SQL_ORM(".")
 
     def new_connection(self, id: str):
         self._active_connections[id] = True
@@ -35,7 +37,7 @@ class DataManager:
                 if self._connectionManager.conWrap[cw].is_active():
                     data = self._connectionManager.conWrap[cw].update(5)
                     car_data.ParseFromString(data)
-                    print(car_data)
+                    self._sql_orm.message(car_data)
             for cw in self._active_connections:
                 if not self._active_connections[cw]:
                     self.close_connection(cw)
