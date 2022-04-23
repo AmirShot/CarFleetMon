@@ -36,9 +36,6 @@ class ConnectionManager:
         conn.send(str(self.conWrap[plate].get_socket().getsockname()[1]).encode())
         print("sent new socket")
 
-
-
-
     def stop_server(self):
         self._running = False
         self._thread.join()

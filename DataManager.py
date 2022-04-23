@@ -1,6 +1,5 @@
 import threading
 import time
-from proto1_pb2 import *
 from SQL_ORM import *
 
 
@@ -15,35 +14,37 @@ class DataManager:
         self._sql_orm = SQL_ORM(".")
 
     def new_connection(self, id: str):
+        print(f"--------------creating a new connection {id}------------------")
         self._active_connections[id] = True
-
-    def init_connections(self):
-        for cw in self._active_connections:
-            self._active_connections[cw] = False
+        self._sql_orm.create_connection(id)
 
     def close_connection(self, id: str):
+        print(f"--------------closing a connection {id}------------------")
         self._active_connections.pop(id)
-
+        self._sql_orm.close_connection(id)
 
     def update(self):
         lock = threading.Lock()
         while self._running:
-            lock.acquire()
-            self.init_connections()
-            for cw in self._connectionManager.conWrap:
-                car_data = CurrData()
-                if not cw in self._active_connections:
-                    self.new_connection(cw)
-                if self._connectionManager.conWrap[cw].is_active():
-                    data = self._connectionManager.conWrap[cw].update(5)
-                    car_data.ParseFromString(data)
-                    self._sql_orm.message(car_data)
+            # clean active connection statuses
             for cw in self._active_connections:
+                self._active_connections[cw] = False
+
+            #
+            active_connections = self._connectionManager.conWrap.copy()
+            for cw in active_connections:
+                if active_connections[cw].is_active():
+                    if cw not in self._active_connections:
+                        self.new_connection(cw)
+                    data = self._connectionManager.conWrap[cw].update(5)
+                    self._active_connections[cw] = True
+                    self._sql_orm.message(data)
+
+            active_connections = self._active_connections.copy()
+            for cw in active_connections:
                 if not self._active_connections[cw]:
                     self.close_connection(cw)
-
-            lock.release()
-            time.sleep(1)
+            time.sleep(5)
 
 
 
