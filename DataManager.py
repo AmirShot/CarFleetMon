@@ -48,10 +48,7 @@ class DataManager:
 
     def activateLiveConnection(self, LicencePlate:str):
         try:
-            print(f"Licence Plate = {LicencePlate}")
-            print("Checking if the connection is Alive")
-            print(f"Active Connections = {self._active_connections}")
-            print(f"Trying to find the connction: {self._connectionManager.conWrap[LicencePlate]}")
+            a = {self._connectionManager.conWrap[LicencePlate]}
             self._connectionManager.conWrap[LicencePlate].update(1)
             return True
         except:
