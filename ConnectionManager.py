@@ -40,6 +40,9 @@ class ConnectionManager:
         self._running = False
         self._thread.join()
 
+    def disconnect_a_client(self, plate):
+        self.conWrap.pop(plate)
+
 
 
 if __name__ == "__main__":

@@ -19,7 +19,10 @@ class ConnectionWrap:
 
     def __del__(self):
         self._running = False
-        self._thread.join()
+        try:
+            self._thread.join()
+        except:
+            pass
         self._socket.close()
 
     def run_socket(self, host):
@@ -30,12 +33,17 @@ class ConnectionWrap:
         with conn:
             print(f"Connected by {addr}")
             while self._running:
-                self._data = conn.recv(1024)
-                self._active = True
-                print(self._data)
-                #send time interval to wait before next sending
-                conn.send(str(self._nextTime).encode())
-
+                try:
+                    self._data = conn.recv(1024)
+                    self._active = True
+                    print(self._data)
+                    #send time interval to wait before next sending
+                    conn.send(str(self._nextTime).encode())
+                except:
+                    print("Conenction was closed")
+                    self._socket.close()
+                    self._connectionManager.disconnect_a_client(self._licencePlate)
+                    break
 
     def get_socket(self):
         return self._socket
