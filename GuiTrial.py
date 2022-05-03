@@ -155,8 +155,12 @@ class ProgramWindow(QMainWindow):
         ret = cursor.fetchall()
         return list(ret)
 
-    def showLiveData(self, licencePlate):
-        d1 = dialog(self.table1, licencePlate)
+    def showLiveData(self):
+        self.current_row = self.table1.currentRow()
+        licencePlate = self.table1.item(self.current_row, 0).text()
+        print(f"LICENCEPLATE = {licencePlate}")
+        if self.dataManager.activateLiveConnection(licencePlate):
+            d1 = dialog(self.table1, licencePlate)
 
 class dialog:
     def __init__(self,table1:QTableWidget, LicencePlate):
