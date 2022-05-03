@@ -5,6 +5,7 @@ from PandasModel import PandasModel"""
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import QApplication, QPushButton, QHBoxLayout, QTabWidget, QVBoxLayout, QWidget, QMainWindow, QGroupBox, QTableWidget,QTableWidgetItem
+from PyQt5.QtGui import QPainter
 from PyQt5.QtCore import pyqtSlot
 import sqlite3
 
@@ -39,6 +40,8 @@ class ProgramWindow(QMainWindow):
         self.tabs_1.addTab(self.tab1_1, "WWA")
         self.tabs_1.addTab(self.tab2_1, "WTP")
         self.tabs_1.addTab(self.tab3_1, "WTW")
+
+        self.btn_Help.clicked.connect(self.showLiveData)
 
         #initialize table
         colms = ["Licence Plate",
@@ -89,6 +92,7 @@ class ProgramWindow(QMainWindow):
         lay = QtWidgets.QVBoxLayout(self.tab1_1)
         lay.addWidget(self.tabs_2)
 
+        self.table1.cellClicked.connect(self.showLiveData)
 
         self.show()
 
@@ -147,6 +151,27 @@ class ProgramWindow(QMainWindow):
         cursor.execute(command)
         ret = cursor.fetchall()
         return list(ret)
+
+    def showLiveData(self, licencePlate):
+        d1 = QtWidgets.QDialog()
+        b1 = QtWidgets.QPushButton("Hello World", d1)
+        b1.move(500,250)
+        d1.setGeometry(100, 100, 750, 500)
+        d1.setWindowTitle("Dialog!")
+        lbl1 = QtWidgets.QLabel("Nothing", d1)
+        current_row = self.table1.currentRow()
+        lbl1.setText(self.table1.item(current_row, 0).text())
+        painter = QPainter()
+        painter.begin(d1)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setPen(QtCore.Qt.black)
+        painter.setBrush(QtCore.Qt.white)
+        painter.drawLine(0, 0, 200, 200)
+
+
+
+
+        d1.exec_()
 
 def main():
     app = QApplication(sys.argv)
