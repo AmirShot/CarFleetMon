@@ -1,4 +1,5 @@
 import sys
+import time
 
 """import Mod_PX
 from PandasModel import PandasModel"""
@@ -10,6 +11,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot
 import sqlite3
 from DataManager import DataManager
+from ConnectionManager import ConnectionManager
+from proto1_pb2 import *
+import threading
 
 class ProgramWindow(QMainWindow):
     def __init__(self, datamanager: DataManager):
@@ -160,10 +164,10 @@ class ProgramWindow(QMainWindow):
         licencePlate = self.table1.item(self.current_row, 0).text()
         print(f"LICENCEPLATE = {licencePlate}")
         if self.dataManager.activateLiveConnection(licencePlate):
-            d1 = dialog(self.table1, licencePlate)
+            d1 = dialog(self.table1, licencePlate, self.dataManager.connectionManager)
 
 class dialog:
-    def __init__(self,table1:QTableWidget, LicencePlate):
+    def __init__(self,table1:QTableWidget, LicencePlate, ConnectionManager: ConnectionManager):
         self.d1 = QtWidgets.QDialog()
         self.b1 = QtWidgets.QPushButton("Hello World", self.d1)
         self.b1.move(500, 250)
@@ -172,12 +176,14 @@ class dialog:
         self.lbl1 = QtWidgets.QLabel("Nothing", self.d1)
         self.current_row = table1.currentRow()
         self.lbl1.setText(table1.item(self.current_row, 0).text())
+        self.connectionManager = ConnectionManager
 
         dif = 50
         start = 80
         xPos = 70
         start2 = start - 20
         xPos2 = 600
+        xDiff = 70
 
         self.lblLine = QtWidgets.QLabel("-------------------------------------------------------------", self.d1)
         self.lblLine.setFont(QFont("Ariel", 20))
@@ -271,8 +277,63 @@ class dialog:
         self.lblText17.setFont(QFont("Ariel", 20))
         self.lblText17.move(xPos2, start2 + dif * 7)
 
-        self.d1.exec_()
 
+
+        self.lblLine20 = QtWidgets.QLabel("0", self.d1)
+        self.lblLine20.setFont(QFont("Ariel", 20))
+        self.lblLine20.move(xPos2-xDiff, start2)
+
+        self.lblText21 = QtWidgets.QLabel("0", self.d1)
+        self.lblText21.setFont(QFont("Ariel", 20))
+        self.lblText21.move(xPos2-xDiff, start2 + dif * 1)
+
+        self.lblText22 = QtWidgets.QLabel("0", self.d1)
+        self.lblText22.setFont(QFont("Ariel", 20))
+        self.lblText22.move(xPos2-xDiff, start2 + dif * 2)
+
+        self.lblText23 = QtWidgets.QLabel("0", self.d1)
+        self.lblText23.setFont(QFont("Ariel", 20))
+        self.lblText23.move(xPos2-xDiff, start2 + dif * 3)
+
+        self.lblText24 = QtWidgets.QLabel("0", self.d1)
+        self.lblText24.setFont(QFont("Ariel", 20))
+        self.lblText24.move(xPos2-xDiff, start2 + dif * 4)
+
+        self.lblText25 = QtWidgets.QLabel("0", self.d1)
+        self.lblText25.setFont(QFont("Ariel", 20))
+        self.lblText25.move(xPos2-xDiff, start2 + dif * 5)
+
+        self.lblText26 = QtWidgets.QLabel("0", self.d1)
+        self.lblText26.setFont(QFont("Ariel", 20))
+        self.lblText26.move(xPos2-xDiff, start2 + dif * 6)
+
+        self.lblText27 = QtWidgets.QLabel("0", self.d1)
+        self.lblText27.setFont(QFont("Ariel", 20))
+        self.lblText27.move(xPos2-xDiff, start2 + dif * 7)
+
+        t = threading.Thread(target=self.ThreadOfUpdatingLiveData, args=(LicencePlate,))
+        t.start()
+
+        self.d1.exec_()
+        t.join()
+
+
+    def ThreadOfUpdatingLiveData(self,LicencePlate):
+        while(True):
+            data = self.connectionManager.conWrap[LicencePlate].get_data()
+            msg = CurrData()
+            msg.ParseFromString(data)
+            self.lblLine20.setText("")
+            self.lblText21.setText(str(msg.FUEL_CONSUMPTION))
+            self.lblText22.setText("")
+            self.lblText23.setText(str(msg.SPEED))
+            self.lblText24.setText(str(""))
+            self.lblText25.setText(str(""))
+            self.lblText26.setText(str(msg.RPM))
+            self.lblText27.setText(str(""))
+            time.sleep(1)
+
+            print(msg)
 
 class GUI:
     def __init__(self,datamanager):

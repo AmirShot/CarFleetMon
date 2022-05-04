@@ -7,7 +7,7 @@ class DataManager:
     def __init__(self, connection_manager):
         self._active_connections = dict()
         self._updatePeriod = 10
-        self._connectionManager = connection_manager
+        self.connectionManager = connection_manager
         self._running = True
         self._thread = threading.Thread(target=self.update)
         self._thread.start()
@@ -31,12 +31,12 @@ class DataManager:
                 self._active_connections[cw] = False
 
             #
-            active_connections = self._connectionManager.conWrap.copy()
+            active_connections = self.connectionManager.conWrap.copy()
             for cw in active_connections:
                 if active_connections[cw].is_active():
                     if cw not in self._active_connections:
                         self.new_connection(cw)
-                    data = self._connectionManager.conWrap[cw].update(5)
+                    data = self.connectionManager.conWrap[cw].update(5)
                     self._active_connections[cw] = True
                     self._sql_orm.message(data)
 
@@ -48,8 +48,8 @@ class DataManager:
 
     def activateLiveConnection(self, LicencePlate:str):
         try:
-            a = {self._connectionManager.conWrap[LicencePlate]}
-            self._connectionManager.conWrap[LicencePlate].update(1)
+            a = {self.connectionManager.conWrap[LicencePlate]}
+            self.connectionManager.conWrap[LicencePlate].update(1)
             return True
         except:
             print("")

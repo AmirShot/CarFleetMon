@@ -8,7 +8,7 @@ class ConnectionManager:
         self._mainSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.conWrap = dict()
         self._running = True
-        self.nextTime = 1
+        self.nextTime = 10
         print(host)
         self._thread = threading.Thread(target=self.run_main_socket, args=(host,))
         self._thread.start()
