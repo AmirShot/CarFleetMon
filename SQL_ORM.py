@@ -38,11 +38,11 @@ class SQL_ORM:
     def __init__(self, home_dir):
         self.homeDir = home_dir
         self.sqliteConnection = sqlite3.connect(f'{self.homeDir}/CFM.db')
-        print(f"Connected to database - {self.homeDir}/CFM.db")
+        #print(f"Connected to database - {self.homeDir}/CFM.db")
         self.table("Vehicles", dictVehicles)
         self.table("Drivers", dictDrivers)
         self.table("Stats", dictStats)
-        print("CREATED SQL CONNECTION _____________________________________________")
+        #print("CREATED SQL CONNECTION _____________________________________________")
 
     def get_cursor(self):
         sqliteConnection = sqlite3.connect(f'{self.homeDir}/CFM.db')
@@ -53,7 +53,7 @@ class SQL_ORM:
         cursor.execute(f''' SELECT count(name) FROM sqlite_master WHERE type='table' AND name='{name}' ''')
         ret = cursor.fetchall()
         if ret[0][0] == 0:
-            print(f"Creating table {name}")
+            #print(f"Creating table {name}")
             command = f'''CREATE TABLE {name} ('''
             for each in values:
                 command += f"'{each}' {values[each]}, "
@@ -81,10 +81,10 @@ class SQL_ORM:
               "Avg Fuel Economy": -1.0,
               "Curr Fuel Economy" :-1.0}
         command = (f"""SELECT * FROM Stats WHERE "Licence Plate" = "{car_data.CAR_ID}";""")
-        print(command)
+        #print(command)
         cursor.execute(command)
         ret = cursor.fetchall()
-        print(ret)
+        #print(ret)
         values = ret[0]
         for index, key in enumerate(stats):
             stats[key] = values[index]
@@ -109,7 +109,7 @@ class SQL_ORM:
             except:
                 command += f""""{each}" = "{stats[each]}", """
         command = f"""{command[:-2]} WHERE "Licence Plate" = "{car_data.CAR_ID}";"""
-        print(command)
+        #print(command)
         cursor.execute(command)
         sql.commit()
         sql.close()
@@ -120,7 +120,7 @@ class SQL_ORM:
         cursor.execute(command)
         ret = cursor.fetchall()
         if not ret:
-            print(f"------------------------Creating a new line {id}-------------------------")
+            #print(f"------------------------Creating a new line {id}-------------------------")
             command = f"""INSERT INTO Stats VALUES ("{id}","0",1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,TRUE);"""
             cursor.execute(command)
         else:

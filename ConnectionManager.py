@@ -9,7 +9,7 @@ class ConnectionManager:
         self.conWrap = dict()
         self._running = True
         self.nextTime = 10
-        print(host)
+        #print(host)
         self._thread = threading.Thread(target=self.run_main_socket, args=(host,))
         self._thread.start()
 
@@ -19,7 +19,7 @@ class ConnectionManager:
         while self._running:
             conn, addr = self._mainSocket.accept()
 
-            print(f"Connected by {addr}")
+            #print(f"Connected by {addr}")
             thread = threading.Thread(target=self.thread_of_socket, args=(conn,host))
             thread.start()
 
@@ -27,14 +27,14 @@ class ConnectionManager:
 
         data = conn.recv(1024).decode()
         plate = data  # maybe split
-        print(f"plate: {plate}")
+        #print(f"plate: {plate}")
         if plate not in self.conWrap:
-            print("not exist")
+            #print("not exist")
             self.conWrap[plate] = ConnectionWrap(plate, self, host, self.nextTime)
-            print(f"connWrap: {self.conWrap[plate]}")
-        print(self.conWrap[plate].get_socket().getsockname()[1])
+            #print(f"connWrap: {self.conWrap[plate]}")
+        #print(self.conWrap[plate].get_socket().getsockname()[1])
         conn.send(str(self.conWrap[plate].get_socket().getsockname()[1]).encode())
-        print("sent new socket")
+        #print("sent new socket")
 
     def stop_server(self):
         self._running = False

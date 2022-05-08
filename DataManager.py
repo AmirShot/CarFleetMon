@@ -14,12 +14,12 @@ class DataManager:
         self._sql_orm = SQL_ORM(".")
 
     def new_connection(self, id: str):
-        print(f"--------------creating a new connection {id}------------------")
+        #print(f"--------------creating a new connection {id}------------------")
         self._active_connections[id] = True
         self._sql_orm.create_connection(id)
 
     def close_connection(self, id: str):
-        print(f"--------------closing a connection {id}------------------")
+        #print(f"--------------closing a connection {id}------------------")
         self._active_connections.pop(id)
         self._sql_orm.close_connection(id)
 
@@ -52,7 +52,7 @@ class DataManager:
             self.connectionManager.conWrap[LicencePlate].update(1)
             return True
         except:
-            print("")
+            #print("")
             return False
 
 

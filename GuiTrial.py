@@ -74,9 +74,8 @@ class ProgramWindow(QMainWindow):
         self.tabs_2.addTab(self.table1, "Stats")
         self.tabs_2.addTab(self.tab2_2, "Foglio 2")
 
-        #add Columns
+        #initialize table
         self.initialTableStatsWithStats()
-
 
         self.table_View_1 = QtWidgets.QTableView()
         font = QtGui.QFont()
@@ -142,6 +141,9 @@ class ProgramWindow(QMainWindow):
             self.IncRowCounter()
             self.AddValues(each, self.table1)
 
+    def updateValues(self):
+        pass
+
 
     def IncRowCounter(self):
         self.rowCounterTableStats+=1
@@ -177,13 +179,14 @@ class dialog:
         self.current_row = table1.currentRow()
         self.lbl1.setText(table1.item(self.current_row, 0).text())
         self.connectionManager = ConnectionManager
+        self.table1 = table1
 
         dif = 50
         start = 80
         xPos = 70
         start2 = start - 20
         xPos2 = 600
-        xDiff = 70
+        xDiff = 100
 
         self.lblLine = QtWidgets.QLabel("-------------------------------------------------------------", self.d1)
         self.lblLine.setFont(QFont("Ariel", 20))
@@ -315,7 +318,6 @@ class dialog:
         t.start()
 
         self.d1.exec_()
-        t.join()
 
 
     def ThreadOfUpdatingLiveData(self,LicencePlate):
@@ -323,14 +325,25 @@ class dialog:
             data = self.connectionManager.conWrap[LicencePlate].get_data()
             msg = CurrData()
             msg.ParseFromString(data)
-            self.lblLine20.setText("")
+            counter = 0
+            while True:
+                try:
+                    licencePlateTry = self.table1.item(counter, 0).text()
+                    if licencePlateTry == LicencePlate:
+                        print(f"-----------------------Counter: {counter}-----------------------")
+                        break
+
+                    counter+=1
+                except:
+                    break
+            self.lblLine20.setText(self.table1.item(counter,8).text())
             self.lblText21.setText(str(msg.FUEL_CONSUMPTION))
-            self.lblText22.setText("")
+            self.lblText22.setText(self.table1.item(counter,4).text())
             self.lblText23.setText(str(msg.SPEED))
-            self.lblText24.setText(str(""))
-            self.lblText25.setText(str(""))
-            self.lblText26.setText(str(msg.RPM))
-            self.lblText27.setText(str(""))
+            self.lblText24.setText(str(self.table1.item(counter,5).text()))
+            self.lblText25.setText(str(self.table1.item(counter,6).text())[:6])
+            self.lblText26.setText(str(msg.RPM)[:6])
+            self.lblText27.setText(str(self.table1.item(counter,7).text())[:6])
             time.sleep(1)
 
             print(msg)
