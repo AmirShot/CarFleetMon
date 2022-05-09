@@ -60,6 +60,17 @@ class ConnectionWrap:
             if self._idleCounter == 10:
                 self._connectionManager.destroy(self)
 
+    def updateWithOutTime(self):
+        if self._active:
+            result = self._data
+            self._active = False
+            return result
+        else:
+            if self._idleCounter < 10:
+                self._idleCounter += 1
+            if self._idleCounter == 10:
+                self._connectionManager.destroy(self)
+
     def get_licence_plate(self):
         return self._licencePlate
 

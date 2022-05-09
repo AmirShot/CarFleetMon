@@ -43,7 +43,7 @@ class ObdClient:
         self.sample = EngineStats()
         self.connection.sample(self.sample)
         # print(sample)
-        time.sleep(self.secondsToWait)
+        time.sleep(self.timeToWait)
         self.current_time_stamp = self.sample.timeStamp
         ########################################
 
@@ -83,7 +83,7 @@ class ObdClient:
             except:
                 print("Distance is 0")
             current_time_stamp = self.sample.timeStamp
-            time.sleep(self.secondsToWait)
+            time.sleep(self.timeToWait)
         self.running = False
 
     def send_data(self):
@@ -108,6 +108,7 @@ class ObdClient:
             print(bits)
             self.directSocket.send(bits)
             self.timeToWait = int(self.directSocket.recv(1024).decode())
+            print(f"-----------------------\n\n\n\nupdated time to wait: {self.timeToWait}\n\n\n\n-----------------------")
             ##############################
             time.sleep(self.timeToWait)
 

@@ -36,7 +36,7 @@ class DataManager:
                 if active_connections[cw].is_active():
                     if cw not in self._active_connections:
                         self.new_connection(cw)
-                    data = self.connectionManager.conWrap[cw].update(5)
+                    data = self.connectionManager.conWrap[cw].updateWithOutTime()
                     self._active_connections[cw] = True
                     self.sql_orm.message(data)
 

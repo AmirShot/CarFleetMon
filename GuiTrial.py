@@ -192,6 +192,7 @@ class dialog:
         self.current_row = table1.currentRow()
         self.lbl1.setText(table1.item(self.current_row, 0).text())
         self.connectionManager = ConnectionManager
+        self.connectionManager.conWrap[LicencePlate].update(1)
         self.table1 = table1
 
         dif = 50
@@ -333,6 +334,7 @@ class dialog:
         self.d1.show()
 
 
+
     def ThreadOfUpdatingLiveData(self,LicencePlate):
         while(True):
             data = self.connectionManager.conWrap[LicencePlate].get_data()
@@ -360,6 +362,8 @@ class dialog:
             time.sleep(1)
 
             print(msg)
+
+
 
 class GUI:
     def __init__(self,datamanager):
