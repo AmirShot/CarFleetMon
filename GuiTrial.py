@@ -233,6 +233,8 @@ class ProgramWindow(QMainWindow):
                 for index2, stat in enumerate(stats):
                     print(f"updating stat: {stat} in place: {index2}, {index1}")
                     self.table1.setItem(index1+1, index2, QTableWidgetItem(str(stat)))
+            for index1, stats in enumerate(data):
+                self.table3.setItem(index1+1, 7, QTableWidgetItem(str(stats[8])))
 
     def IncRowCounter(self):
         self.rowCounterTableStats+=1
@@ -279,6 +281,9 @@ class ProgramWindow(QMainWindow):
         if self.dataManager.activateLiveConnection(licencePlate):
             d1 = dialog(self.table1, licencePlate, self.dataManager.connectionManager)
             d1.exec_()
+
+    def closeEvent(self, event):
+        pass
 
 
 class dialog(QDialog):
