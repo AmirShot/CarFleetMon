@@ -179,7 +179,7 @@ class ProgramWindow(QMainWindow):
         print(f"LICENCEPLATE = {licencePlate}")
         if self.dataManager.activateLiveConnection(licencePlate):
             d1 = dialog(self.table1, licencePlate, self.dataManager.connectionManager)
-            d1.show()
+            d1.exec_()
 
 
 class dialog(QDialog):
