@@ -55,6 +55,15 @@ class DataManager:
             #print("")
             return False
 
+    def deactivateLiveConnection(self, LicencePlate:str):
+        try:
+            a = {self.connectionManager.conWrap[LicencePlate]}
+            self.connectionManager.conWrap[LicencePlate].update(10)
+            return True
+        except:
+            #print("")
+            return False
+
     def getStats(self):
         return self.sql_orm.getStats()
 

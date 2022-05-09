@@ -8,7 +8,8 @@ adding a function of OnClose
 
 #TODO: add a function of adding a new vehicle to the fleet
 
-#TODO: fix timing problem
+
+#TODO: fix closing connection problem - is online
 
 
 
