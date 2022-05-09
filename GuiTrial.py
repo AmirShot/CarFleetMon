@@ -18,10 +18,12 @@ import threading
 class ProgramWindow(QMainWindow):
     def __init__(self, datamanager: DataManager):
         QMainWindow.__init__(self)
+        self.rowCounterTableStats = 0
+        self.rowCounterTableDrivers = 0
+        self.rowCounterTableVehicles = 0
         self.homeDir = "."
         self.setup_main_window()
         self.set_window_layout()
-        self.rowCounterTableStats = 0
         self.clicked = False
         self.dataManager = datamanager
         t = threading.Thread(target=self.updateValues)
@@ -31,7 +33,7 @@ class ProgramWindow(QMainWindow):
     def setup_main_window(self):
         self.centralwidget = QWidget()
         self.setCentralWidget(self.centralwidget)
-        self.resize( 800, 350  )
+        self.resize( 1150, 1000  )
         self.setWindowTitle( "ProjectX" )
 
     def set_window_layout(self):
@@ -64,20 +66,42 @@ class ProgramWindow(QMainWindow):
                  "Avg Fuel Economy",
                  "Curr Fuel Economy",
                  "Is Online"]
-        self.table1 = self.CreateTable(colms, False)
+        colms2 = ["Driver Licence ID",
+                  "Full Name",
+                  "Exp Date Of Driver's Licence",
+                  "Vehicle ID",
+                  "Phone Number",
+                  "Email"]
+        colms3 = ["Licence Plate",
+                  "Make",
+                  "Model",
+                  "Year",
+                  "Kms",
+                  "Driver",
+                  "Issues",
+                  "Fuel Economy",
+                  "Join Date",
+                  "Fuel Type"]
 
+        self.table1 = self.CreateTable(colms, False)
+        self.table2 = self.CreateTableDrivers(colms2, False)
+        self.table3 = self.CreateTableVehicles(colms3, False)
 
         # Initialize tabs_2 screen
         self.tabs_2 = QtWidgets.QTabWidget()
+        self.tabs_3 = QtWidgets.QTabWidget()
 
         self.tab2_2 = QtWidgets.QWidget()
         self.tabs_2.setTabPosition(QtWidgets.QTabWidget.West)
         # Add tabs
         self.tabs_2.addTab(self.table1, "Stats")
-        self.tabs_2.addTab(self.tab2_2, "Foglio 2")
+        self.tabs_2.addTab(self.table2, "Drivers")
+        self.tabs_2.addTab(self.table3, "Vehicles")
 
         #initialize table
         self.initialTableStatsWithStats()
+        self.initialTableDriversWithStats()
+        self.initialTableVehiclesWithStats()
 
         self.table_View_1 = QtWidgets.QTableView()
         font = QtGui.QFont()
@@ -86,16 +110,11 @@ class ProgramWindow(QMainWindow):
 
 
         # connections
-        self.btn_Analisi.clicked.connect(self.loadFile)
 
         # layouts
         vbox = QtWidgets.QVBoxLayout(self.centralwidget)
-        hgroup = QtWidgets.QGroupBox()
-        vbox.addWidget(hgroup)
-        hlay_group = QtWidgets.QHBoxLayout(hgroup)
-        hlay_group.addWidget(self.btn_Analisi)
-        hlay_group.addWidget(self.btn_Help)
-        hlay_group.addWidget(self.btn_Wiz)
+
+
         vbox.addWidget(self.tabs_1)
 
         lay = QtWidgets.QVBoxLayout(self.tab1_1)
@@ -105,10 +124,6 @@ class ProgramWindow(QMainWindow):
 
         self.show()
 
-
-    @pyqtSlot()
-    def loadFile(self):
-        pass
 
     def CreateTable(self, values : list, editable: bool):
         table1 = QtWidgets.QTableWidget()
@@ -123,6 +138,33 @@ class ProgramWindow(QMainWindow):
             counter+=1
         return table1
 
+    def CreateTableDrivers(self, values : list, editable: bool):
+        table2 = QtWidgets.QTableWidget()
+        table2.setColumnCount(len(values))
+        table2.setRowCount(2)
+        self.rowCounterTableDrivers = 1
+        if not editable:
+            table2.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        counter = 0
+        for each in values:
+            table2.setItem(0, counter, QTableWidgetItem(each))
+            counter+=1
+        return table2
+
+    def CreateTableVehicles(self, values : list, editable: bool):
+        table3 = QtWidgets.QTableWidget()
+        table3.setColumnCount(len(values))
+        table3.setRowCount(2)
+        self.rowCounterTableDrivers = 1
+        if not editable:
+            table3.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
+        counter = 0
+        for each in values:
+            table3.setItem(0, counter, QTableWidgetItem(each))
+            counter+=1
+        return table3
+
+
     def AddValues(self, values : list, table: QTableWidget):
         lst = []
         for each in range(self.rowCounterTableStats-1):
@@ -136,6 +178,31 @@ class ProgramWindow(QMainWindow):
                 table.setItem(self.rowCounterTableStats-1,counter,QTableWidgetItem(str(each)))
                 counter+=1
 
+    def AddValuesDrivers(self, values : list, table: QTableWidget):
+        lst = []
+        for each in range(self.rowCounterTableDrivers-1):
+            print(f"row = {each}, col = 0")
+            print(f"------------{self.table2.item((each), 0).text()}")
+            lst.append(self.table2.item(each,0).text())
+        print(lst)
+        if values[0] not in lst:
+            counter = 0
+            for each in values:
+                table.setItem(self.rowCounterTableDrivers-1,counter,QTableWidgetItem(str(each)))
+                counter+=1
+
+    def AddValuesVehicles(self, values : list, table: QTableWidget):
+        lst = []
+        for each in range(self.rowCounterTableVehicles-1):
+            print(f"row = {each}, col = 0")
+            print(f"------------{self.table3.item((each), 0).text()}")
+            lst.append(self.table3.item(each,0).text())
+        print(lst)
+        if values[0] not in lst:
+            counter = 0
+            for each in values:
+                table.setItem(self.rowCounterTableVehicles-1,counter,QTableWidgetItem(str(each)))
+                counter+=1
 
     def initialTableStatsWithStats(self):
         lst = self.getListOfLists()
@@ -144,6 +211,20 @@ class ProgramWindow(QMainWindow):
             self.IncRowCounter()
             self.AddValues(each, self.table1)
 
+    def initialTableDriversWithStats(self):
+        lst = self.getListOfListsDrivers()
+        for each in lst:
+            print(each)
+            self.IncRowCounterDrivers()
+            self.AddValuesDrivers(each, self.table2)
+
+    def initialTableVehiclesWithStats(self):
+        lst = self.getListOfListsVehicles()
+        for each in lst:
+            print(each)
+            self.IncRowCounterVehicles()
+            self.AddValuesVehicles(each, self.table3)
+
     def updateValues(self):
         while True:
             time.sleep(5)
@@ -151,15 +232,19 @@ class ProgramWindow(QMainWindow):
             for index1, stats in enumerate(data):
                 for index2, stat in enumerate(stats):
                     print(f"updating stat: {stat} in place: {index2}, {index1}")
-                    self.table1.setItem(index1, index2, QTableWidgetItem(str(stat)))
-
-
-
-
+                    self.table1.setItem(index1+1, index2, QTableWidgetItem(str(stat)))
 
     def IncRowCounter(self):
         self.rowCounterTableStats+=1
         self.table1.setRowCount(self.rowCounterTableStats)
+
+    def IncRowCounterDrivers(self):
+        self.rowCounterTableDrivers+=1
+        self.table2.setRowCount(self.rowCounterTableDrivers)
+
+    def IncRowCounterVehicles(self):
+        self.rowCounterTableVehicles+=1
+        self.table3.setRowCount(self.rowCounterTableVehicles)
 
     def get_cursor(self):
         print(f'{self.homeDir}/CFM.db')
@@ -169,6 +254,20 @@ class ProgramWindow(QMainWindow):
     def getListOfLists(self):
         sql, cursor = self.get_cursor()
         command = f'SELECT * FROM "Stats";'
+        cursor.execute(command)
+        ret = cursor.fetchall()
+        return list(ret)
+
+    def getListOfListsDrivers(self):
+        sql, cursor = self.get_cursor()
+        command = f'SELECT * FROM "Drivers";'
+        cursor.execute(command)
+        ret = cursor.fetchall()
+        return list(ret)
+
+    def getListOfListsVehicles(self):
+        sql, cursor = self.get_cursor()
+        command = f'SELECT * FROM "Vehicles";'
         cursor.execute(command)
         ret = cursor.fetchall()
         return list(ret)
@@ -198,6 +297,8 @@ class dialog(QDialog):
         self.connectionManager = ConnectionManager
         self.table1 = table1
         self.LicencePlate = LicencePlate
+        self.running = True
+
 
 
         dif = 50
@@ -336,17 +437,13 @@ class dialog(QDialog):
         t = threading.Thread(target=self.ThreadOfUpdatingLiveData, args=(LicencePlate,))
         t.start()
 
-
-
-
-
     def ThreadOfUpdatingLiveData(self,LicencePlate):
-        while(True):
+        while(self.running):
             data = self.connectionManager.conWrap[LicencePlate].get_data()
             msg = CurrData()
             msg.ParseFromString(data)
             counter = 0
-            while True:
+            while self.running:
                 try:
                     licencePlateTry = self.table1.item(counter, 0).text()
                     if licencePlateTry == LicencePlate:
@@ -370,7 +467,7 @@ class dialog(QDialog):
 
     def closeEvent(self, event):
         self.connectionManager.conWrap[self.LicencePlate].update(10)
-
+        self.running = False
 
 class GUI:
     def __init__(self,datamanager):

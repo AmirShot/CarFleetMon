@@ -19,7 +19,7 @@ class DataManager:
         self.sql_orm.create_connection(id)
 
     def close_connection(self, id: str):
-        #print(f"--------------closing a connection {id}------------------")
+        print(f"--------------closing a connection {id}------------------")
         self._active_connections.pop(id)
         self.sql_orm.close_connection(id)
 
@@ -28,7 +28,7 @@ class DataManager:
         while self._running:
             # clean active connection statuses
             for cw in self._active_connections:
-                self._active_connections[cw] = False
+                self._active_connections[cw] = True
 
             #
             active_connections = self.connectionManager.conWrap.copy()
@@ -37,7 +37,6 @@ class DataManager:
                     if cw not in self._active_connections:
                         self.new_connection(cw)
                     data = self.connectionManager.conWrap[cw].updateWithOutTime()
-                    self._active_connections[cw] = True
                     self.sql_orm.message(data)
 
             active_connections = self._active_connections.copy()

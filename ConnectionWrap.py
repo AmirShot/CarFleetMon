@@ -31,7 +31,7 @@ class ConnectionWrap:
         self._socket.listen()
         conn, addr = self._socket.accept()
         with conn:
-            #print(f"Connected by {addr}")
+            print(f"Connected by {addr}")
             while self._running:
                 try:
                     self._data = conn.recv(1024)
@@ -40,7 +40,7 @@ class ConnectionWrap:
                     #send time interval to wait before next sending
                     conn.send(str(self._nextTime).encode())
                 except:
-                    #print("Conenction was closed")
+                    print("Conenction was closed")
                     self._socket.close()
                     self._connectionManager.disconnect_a_client(self._licencePlate)
                     break
