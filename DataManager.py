@@ -11,17 +11,17 @@ class DataManager:
         self._running = True
         self._thread = threading.Thread(target=self.update)
         self._thread.start()
-        self._sql_orm = SQL_ORM(".")
+        self.sql_orm = SQL_ORM(".")
 
     def new_connection(self, id: str):
         #print(f"--------------creating a new connection {id}------------------")
         self._active_connections[id] = True
-        self._sql_orm.create_connection(id)
+        self.sql_orm.create_connection(id)
 
     def close_connection(self, id: str):
         #print(f"--------------closing a connection {id}------------------")
         self._active_connections.pop(id)
-        self._sql_orm.close_connection(id)
+        self.sql_orm.close_connection(id)
 
     def update(self):
         lock = threading.Lock()
@@ -38,7 +38,7 @@ class DataManager:
                         self.new_connection(cw)
                     data = self.connectionManager.conWrap[cw].update(5)
                     self._active_connections[cw] = True
-                    self._sql_orm.message(data)
+                    self.sql_orm.message(data)
 
             active_connections = self._active_connections.copy()
             for cw in active_connections:
@@ -55,7 +55,8 @@ class DataManager:
             #print("")
             return False
 
-
+    def getStats(self):
+        return self.sql_orm.getStats()
 
 
 

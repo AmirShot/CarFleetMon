@@ -5,7 +5,7 @@ import time
 from PandasModel import PandasModel"""
 
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtWidgets import QApplication, QPushButton, QHBoxLayout, QTabWidget, QVBoxLayout, QWidget, QMainWindow, QGroupBox, QTableWidget,QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QPushButton, QHBoxLayout, QTabWidget, QVBoxLayout, QWidget, QMainWindow, QGroupBox, QTableWidget,QTableWidgetItem,QMdiSubWindow
 from PyQt5.QtGui import QPainter, QBrush, QPen, QFont
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSlot
@@ -24,6 +24,8 @@ class ProgramWindow(QMainWindow):
         self.rowCounterTableStats = 0
         self.clicked = False
         self.dataManager = datamanager
+        t = threading.Thread(target=self.updateValues)
+        t.start()
 
 
     def setup_main_window(self):
@@ -80,6 +82,7 @@ class ProgramWindow(QMainWindow):
         self.table_View_1 = QtWidgets.QTableView()
         font = QtGui.QFont()
         font.setPointSize(10)
+
 
 
         # connections
@@ -142,7 +145,16 @@ class ProgramWindow(QMainWindow):
             self.AddValues(each, self.table1)
 
     def updateValues(self):
-        pass
+        while True:
+            time.sleep(5)
+            data = self.dataManager.getStats()
+            for index1, stats in enumerate(data):
+                for index2, stat in enumerate(stats):
+                    print(f"updating stat: {stat} in place: {index2}, {index1}")
+                    self.table1.setItem(index1, index2, QTableWidgetItem(str(stat)))
+
+
+
 
 
     def IncRowCounter(self):
@@ -167,6 +179,7 @@ class ProgramWindow(QMainWindow):
         print(f"LICENCEPLATE = {licencePlate}")
         if self.dataManager.activateLiveConnection(licencePlate):
             d1 = dialog(self.table1, licencePlate, self.dataManager.connectionManager)
+
 
 class dialog:
     def __init__(self,table1:QTableWidget, LicencePlate, ConnectionManager: ConnectionManager):

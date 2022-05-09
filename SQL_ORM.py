@@ -111,6 +111,7 @@ class SQL_ORM:
         command = f"""{command[:-2]} WHERE "Licence Plate" = "{car_data.CAR_ID}";"""
         #print(command)
         cursor.execute(command)
+        print(f"stats: {stats}")
         sql.commit()
         sql.close()
 
@@ -157,6 +158,14 @@ class SQL_ORM:
         cursor.execute(command)
         sql.commit()
         sql.close()
+
+    def getStats(self):
+        sql, cursor = self.get_cursor()
+        command = f"""SELECT * FROM Stats;"""
+        cursor.execute(command)
+        ret = cursor.fetchall()
+        sql.close()
+        return ret
 
 
 if __name__ == "__main__":
