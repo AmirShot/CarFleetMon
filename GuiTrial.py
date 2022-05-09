@@ -330,7 +330,7 @@ class dialog:
         t = threading.Thread(target=self.ThreadOfUpdatingLiveData, args=(LicencePlate,))
         t.start()
 
-        self.d1.exec_()
+        self.d1.show()
 
 
     def ThreadOfUpdatingLiveData(self,LicencePlate):
