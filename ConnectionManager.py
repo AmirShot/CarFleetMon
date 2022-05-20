@@ -1,9 +1,11 @@
 import socket
 import threading
 from ConnectionWrap import ConnectionWrap
+from SQL_ORM import *
 
 class ConnectionManager:
-    def __init__(self, host):
+    def __init__(self, host, sql_orm:SQL_ORM):
+        self.sql_orm = sql_orm
         self._mainPort = 65432
         self._mainSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.conWrap = dict()
@@ -42,7 +44,7 @@ class ConnectionManager:
 
     def disconnect_a_client(self, plate):
         self.conWrap.pop(plate)
-
+        self.sql_orm.close_connection(plate)
 
 
 if __name__ == "__main__":

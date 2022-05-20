@@ -4,14 +4,15 @@ from SQL_ORM import *
 
 
 class DataManager:
-    def __init__(self, connection_manager):
+    def __init__(self, connection_manager, sql_orm:SQL_ORM):
         self._active_connections = dict()
         self._updatePeriod = 10
         self.connectionManager = connection_manager
         self._running = True
         self._thread = threading.Thread(target=self.update)
         self._thread.start()
-        self.sql_orm = SQL_ORM(".")
+        self.sql_orm = sql_orm
+
 
     def new_connection(self, id: str):
         #print(f"--------------creating a new connection {id}------------------")
@@ -42,6 +43,7 @@ class DataManager:
             active_connections = self._active_connections.copy()
             for cw in active_connections:
                 if not self._active_connections[cw]:
+                    print("CLOSING A CONNECTION")
                     self.close_connection(cw)
             time.sleep(5)
 

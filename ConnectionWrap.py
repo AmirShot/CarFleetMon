@@ -1,6 +1,7 @@
 import socket
 from enum import Enum
 import threading
+from proto1_pb2 import *
 
 
 class ConnectionWrap:
@@ -16,6 +17,7 @@ class ConnectionWrap:
         self._thread = threading.Thread(target=self.run_socket, args=(host,))
         self._nextTime = next_time
         self._thread.start()
+        self.currentStats = CurrData()
 
     def __del__(self):
         self._running = False
@@ -34,11 +36,14 @@ class ConnectionWrap:
             print(f"Connected by {addr}")
             while self._running:
                 try:
+                    self.currentStats = CurrData()
                     self._data = conn.recv(1024)
                     self._active = True
                     print(self._data)
                     #send time interval to wait before next sending
                     conn.send(str(self._nextTime).encode())
+                    self.currentStats.ParseFromString(self._data)
+                    print(f"\n\n\n\n\nstats: \n{self.currentStats}\n\n\n\n\n")
                 except:
                     print("Conenction was closed")
                     self._socket.close()
@@ -79,6 +84,9 @@ class ConnectionWrap:
 
     def get_data(self):
         return self._data
+
+    def getCurrentStats(self):
+        return self.currentStats
 
 
 

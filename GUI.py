@@ -14,6 +14,7 @@ from DataManager import DataManager
 from ConnectionManager import ConnectionManager
 from proto1_pb2 import *
 import threading
+from proto1_pb2 import *
 
 class ProgramWindow(QMainWindow):
     def __init__(self, datamanager: DataManager):
@@ -26,6 +27,7 @@ class ProgramWindow(QMainWindow):
         self.set_window_layout()
         self.clicked = False
         self.dataManager = datamanager
+        #dialog2()
         t = threading.Thread(target=self.updateValues)
         t.start()
 
@@ -35,6 +37,7 @@ class ProgramWindow(QMainWindow):
         self.setCentralWidget(self.centralwidget)
         self.resize( 1150, 1000  )
         self.setWindowTitle( "ProjectX" )
+
 
     def set_window_layout(self):
         # buttons
@@ -90,6 +93,8 @@ class ProgramWindow(QMainWindow):
         # Initialize tabs_2 screen
         self.tabs_2 = QtWidgets.QTabWidget()
         self.tabs_3 = QtWidgets.QTabWidget()
+
+
 
         self.tab2_2 = QtWidgets.QWidget()
         self.tabs_2.setTabPosition(QtWidgets.QTabWidget.West)
@@ -155,7 +160,7 @@ class ProgramWindow(QMainWindow):
         table3 = QtWidgets.QTableWidget()
         table3.setColumnCount(len(values))
         table3.setRowCount(2)
-        self.rowCounterTableDrivers = 1
+        self.rowCounterTableVehicles = 1
         if not editable:
             table3.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
         counter = 0
@@ -229,12 +234,22 @@ class ProgramWindow(QMainWindow):
         while True:
             time.sleep(5)
             data = self.dataManager.getStats()
+            self.car_data = CurrData()
             for index1, stats in enumerate(data):
                 for index2, stat in enumerate(stats):
                     print(f"updating stat: {stat} in place: {index2}, {index1}")
                     self.table1.setItem(index1+1, index2, QTableWidgetItem(str(stat)))
             for index1, stats in enumerate(data):
                 self.table3.setItem(index1+1, 7, QTableWidgetItem(str(stats[8])))
+            for index1, stats in enumerate(data):
+                try:
+                    print(f"Connection Wrap dict {self.dataManager.connectionManager.conWrap}")
+                    print(f"Licence Plate: {stats[0]}\n----")
+                    print(f"----{(self.dataManager.connectionManager.conWrap[stats[0]].getCurrentStats())}")
+                    self.table3.setItem(index1+1, 4, QTableWidgetItem(str("")))
+                except:
+                    pass
+
 
     def IncRowCounter(self):
         self.rowCounterTableStats+=1
@@ -243,10 +258,12 @@ class ProgramWindow(QMainWindow):
     def IncRowCounterDrivers(self):
         self.rowCounterTableDrivers+=1
         self.table2.setRowCount(self.rowCounterTableDrivers)
+        print(f"SET ROW COUNTER: {self.rowCounterTableDrivers}")
 
     def IncRowCounterVehicles(self):
         self.rowCounterTableVehicles+=1
         self.table3.setRowCount(self.rowCounterTableVehicles)
+        print(f"SET ROW COUNTER: {self.rowCounterTableVehicles}")
 
     def get_cursor(self):
         print(f'{self.homeDir}/CFM.db')
@@ -291,12 +308,12 @@ class dialog(QDialog):
         super().__init__()
 
 
-        self.b1 = QtWidgets.QPushButton("Hello World", self)
         print("Passed 1")
-        self.b1.move(500, 250)
         self.setGeometry(100, 100, 750, 500)
         self.setWindowTitle("Dialog!")
         self.lbl1 = QtWidgets.QLabel("Nothing", self)
+        self.lbl1.setFont(QFont("Ariel", 25))
+        self.lbl1.move(300,10)
         self.current_row = table1.currentRow()
         self.lbl1.setText(table1.item(self.current_row, 0).text())
         self.connectionManager = ConnectionManager
@@ -441,6 +458,107 @@ class dialog(QDialog):
 
         t = threading.Thread(target=self.ThreadOfUpdatingLiveData, args=(LicencePlate,))
         t.start()
+
+    def ThreadOfUpdatingLiveData(self,LicencePlate):
+        while(self.running):
+            data = self.connectionManager.conWrap[LicencePlate].get_data()
+            msg = CurrData()
+            msg.ParseFromString(data)
+            counter = 0
+            while self.running:
+                try:
+                    licencePlateTry = self.table1.item(counter, 0).text()
+                    if licencePlateTry == LicencePlate:
+                        print(f"-----------------------Counter: {counter}-----------------------")
+                        break
+
+                    counter+=1
+                except:
+                    break
+            self.lblLine20.setText(self.table1.item(counter,8).text()[:5])
+            self.lblText21.setText(str(msg.FUEL_CONSUMPTION))
+            self.lblText22.setText(self.table1.item(counter,4).text())
+            self.lblText23.setText(str(msg.SPEED))
+            self.lblText24.setText(str(self.table1.item(counter,5).text())[:5])
+            self.lblText25.setText(str(self.table1.item(counter,6).text())[:6])
+            self.lblText26.setText(str(msg.RPM)[:6])
+            self.lblText27.setText(str(self.table1.item(counter,7).text())[:6])
+            time.sleep(1)
+
+            print(msg)
+
+    def closeEvent(self, event):
+        self.connectionManager.conWrap[self.LicencePlate].update(10)
+        self.running = False
+
+
+class dialog2(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setGeometry(100, 100, 750, 500)
+        self.setWindowTitle("Add a driver")
+        self.running = True
+
+        self.startY = 25
+        self.difYNext = 30
+        self.difY = 80
+        self.xPos = 60
+
+        self.b1 = QtWidgets.QPushButton("Add Driver", self)
+        self.b1.move(600,450)
+        self.b1.setFont(QFont("Ariel", 15))
+
+        self.lbl1 = QtWidgets.QLabel("Driver Licence ID:", self)
+        self.lbl2 = QtWidgets.QLabel("Full Name:", self)
+        self.lbl3 = QtWidgets.QLabel("Exp Date Of Driver's Licence:", self)
+        self.lbl4 = QtWidgets.QLabel("Vehicle ID", self)
+        self.lbl5 = QtWidgets.QLabel("Phone Number", self)
+        self.lbl6 = QtWidgets.QLabel("Email", self)
+
+        self.input1 = QtWidgets.QLineEdit(self)
+        self.input2 = QtWidgets.QLineEdit(self)
+        self.input3 = QtWidgets.QLineEdit(self)
+        self.input4 = QtWidgets.QLineEdit(self)
+        self.input5 = QtWidgets.QLineEdit(self)
+        self.input6 = QtWidgets.QLineEdit(self)
+
+        self.lbl1.setFont(QFont("Ariel",15))
+        self.lbl2.setFont(QFont("Ariel",15))
+        self.lbl3.setFont(QFont("Ariel",15))
+        self.lbl4.setFont(QFont("Ariel",15))
+        self.lbl5.setFont(QFont("Ariel",15))
+        self.lbl6.setFont(QFont("Ariel",15))
+
+        self.lbl1.move(self.xPos, self.startY)
+        self.lbl2.move(self.xPos, self.startY+self.difY*1)
+        self.lbl3.move(self.xPos, self.startY + self.difY * 2)
+        self.lbl4.move(self.xPos, self.startY + self.difY * 3)
+        self.lbl5.move(self.xPos, self.startY + self.difY * 4)
+        self.lbl6.move(self.xPos, self.startY + self.difY * 5)
+
+        self.input1.move(self.xPos, self.startY+self.difYNext)
+        self.input2.move(self.xPos, self.startY+self.difY*1+self.difYNext)
+        self.input3.move(self.xPos, self.startY+self.difY*2+self.difYNext)
+        self.input4.move(self.xPos, self.startY+self.difY*3+self.difYNext)
+        self.input5.move(self.xPos, self.startY+self.difY*4+self.difYNext)
+        self.input6.move(self.xPos, self.startY+self.difY*5+self.difYNext)
+
+        self.input1.setFixedHeight(30)
+        self.input2.setFixedHeight(30)
+        self.input3.setFixedHeight(30)
+        self.input4.setFixedHeight(30)
+        self.input5.setFixedHeight(30)
+        self.input6.setFixedHeight(30)
+
+        self.input1.setFixedWidth(500)
+        self.input2.setFixedWidth(500)
+        self.input3.setFixedWidth(500)
+        self.input4.setFixedWidth(500)
+        self.input5.setFixedWidth(500)
+        self.input6.setFixedWidth(500)
+
+        self.exec_()
+
 
     def ThreadOfUpdatingLiveData(self,LicencePlate):
         while(self.running):
