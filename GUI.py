@@ -35,27 +35,24 @@ class ProgramWindow(QMainWindow):
     def setup_main_window(self):
         self.centralwidget = QWidget()
         self.setCentralWidget(self.centralwidget)
-        self.resize( 1150, 1000  )
+        self.resize( 1200, 1000  )
         self.setWindowTitle( "ProjectX" )
 
 
     def set_window_layout(self):
         # buttons
-        self.btn_Analisi = QtWidgets.QPushButton('Analisi')
-        self.btn_Help = QtWidgets.QPushButton('Help')
-        self.btn_Wiz = QtWidgets.QPushButton('Wizard')
 
         # Initialize tabs_1 screen
         self.tabs_1 = QtWidgets.QTabWidget()
         self.tab1_1 = QtWidgets.QWidget()
-        self.tab2_1 = QtWidgets.QWidget()
-        self.tab3_1 = QtWidgets.QWidget()
+
+        self.mainLayout = QtWidgets.QVBoxLayout()
+        self.mainLayout.addWidget(self.tab1_1)
         # Add tabs
-        self.tabs_1.addTab(self.tab1_1, "WWA")
+        self.tabs_1.setLayout(self.mainLayout)
 
         self.running = True
 
-        self.btn_Help.clicked.connect(self.showLiveData)
 
         #initialize table
         colms = ["Licence Plate",
