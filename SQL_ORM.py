@@ -62,6 +62,21 @@ class SQL_ORM:
         sql.commit()
         sql.close()
 
+    def deleteDriver(self, DriverLicenceID : str):
+        sql, cursor = self.get_cursor()
+        command = f"""DELETE FROM Drivers WHERE "Driver Licence ID" = "{DriverLicenceID}";"""
+        cursor.execute(command)
+        sql.commit()
+        sql.close()
+
+    def deleteVehicle(self, LicencePlate : str):
+        sql, cursor = self.get_cursor()
+        command = f"""DELETE FROM Vehicles WHERE "Licence Plate" = "{LicencePlate}";"""
+        cursor.execute(command)
+        command = f"""DELETE FROM Stats WHERE "Licence Plate" = "{LicencePlate}";"""
+        cursor.execute(command)
+        sql.commit()
+        sql.close()
 
     def __del__(self):
         self.sqliteConnection.close()
@@ -166,6 +181,13 @@ class SQL_ORM:
         ret = cursor.fetchall()
         sql.close()
         return ret
+
+    def updateDrivers(self, driverLicenceID, fullName, expDate, vehicleID, phoneNumber, email):
+        sql, cursor = self.get_cursor()
+        command = f"""INSERT INTO Drivers VALUES ("{driverLicenceID}","{fullName}","{expDate}","{vehicleID}","{phoneNumber}","{email}");"""
+        sql.execute(command)
+        sql.commit()
+        sql.close()
 
 
 if __name__ == "__main__":

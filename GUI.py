@@ -52,8 +52,8 @@ class ProgramWindow(QMainWindow):
         self.tab3_1 = QtWidgets.QWidget()
         # Add tabs
         self.tabs_1.addTab(self.tab1_1, "WWA")
-        self.tabs_1.addTab(self.tab2_1, "WTP")
-        self.tabs_1.addTab(self.tab3_1, "WTW")
+
+        self.running = True
 
         self.btn_Help.clicked.connect(self.showLiveData)
 
@@ -86,9 +86,7 @@ class ProgramWindow(QMainWindow):
                   "Join Date",
                   "Fuel Type"]
 
-        self.table1 = self.CreateTable(colms, False)
-        self.table2 = self.CreateTableDrivers(colms2, False)
-        self.table3 = self.CreateTableVehicles(colms3, False)
+
 
         # Initialize tabs_2 screen
         self.tabs_2 = QtWidgets.QTabWidget()
@@ -96,12 +94,47 @@ class ProgramWindow(QMainWindow):
 
 
 
-        self.tab2_2 = QtWidgets.QWidget()
+
         self.tabs_2.setTabPosition(QtWidgets.QTabWidget.West)
+
+        self.tableStats = self.CreateTable(colms, False)
+        self.tableDrivers = self.CreateTableDrivers(colms2, False)
+        self.tableVehicles = self.CreateTableVehicles(colms3, False)
+
+        self.tab = QtWidgets.QWidget()
+        self.btnAddDriver = QtWidgets.QPushButton("Add Driver")
+
+
+        self.btnDeleteDriver = QtWidgets.QPushButton('Delete Driver')
+        self.btnDeleteDriver.clicked.connect(lambda : self.deleteDriver())
+
+
+        layoutDivers = QVBoxLayout()
+        layoutDivers.addWidget(self.tableDrivers)
+        layoutDivers.addWidget(self.btnAddDriver)
+        layoutDivers.addWidget(self.btnDeleteDriver)
+
+
+        self.tabVehicles = QtWidgets.QWidget()
+        self.btnDeleteVehicels = QtWidgets.QPushButton('Delete Vehicle')
+        self.btnDeleteVehicels.clicked.connect(lambda : self.deleteVehicle())
+        self.btnEditVehicels = QtWidgets.QPushButton('Edit Vehicle')
+
+        layoutVehicles = QVBoxLayout()
+        layoutVehicles.addWidget(self.tableVehicles)
+        layoutVehicles.addWidget(self.btnEditVehicels)
+        layoutVehicles.addWidget(self.btnDeleteVehicels)
+        self.tabVehicles.setLayout(layoutVehicles)
+
+        self.btnAddDriver.clicked.connect(lambda: dialog2(self.dataManager, self))
+        self.tab.setLayout(layoutDivers)
+
+
         # Add tabs
-        self.tabs_2.addTab(self.table1, "Stats")
-        self.tabs_2.addTab(self.table2, "Drivers")
-        self.tabs_2.addTab(self.table3, "Vehicles")
+        self.tabs_2.addTab(self.tableStats, "Stats")
+        self.tabs_2.addTab(self.tab, "Drivers")
+        self.tabs_2.addTab(self.tabVehicles, "Vehicles")
+
 
         #initialize table
         self.initialTableStatsWithStats()
@@ -125,10 +158,62 @@ class ProgramWindow(QMainWindow):
         lay = QtWidgets.QVBoxLayout(self.tab1_1)
         lay.addWidget(self.tabs_2)
 
-        self.table1.cellClicked.connect(self.showLiveData)
+        self.tableStats.cellClicked.connect(self.showLiveData)
 
         self.show()
 
+    def deleteDriver(self):
+        current_row = self.tableDrivers.currentRow()
+        print(f"Current row: {current_row}")
+        if current_row!=-1:
+            licencePlateID = self.tableDrivers.item(current_row, 0).text()
+            print(f"ID: {licencePlateID}")
+            reply = QtWidgets.QMessageBox.question(self, 'Delete', f'Are you sure you want to delete driver {licencePlateID}?',
+                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                                   QtWidgets.QMessageBox.No)
+            print("2")
+            if reply == QtWidgets.QMessageBox.Yes:
+                self.tableDrivers.removeRow(current_row)
+                self.dataManager.sql_orm.deleteDriver(licencePlateID)
+                self.decRowCounterDrivers()
+            else:
+                pass
+
+    def deleteVehicle(self):
+        current_row = self.tableVehicles.currentRow()
+        print(f"Current row: {current_row}")
+        if current_row!=-1:
+            licencePlateID = self.tableVehicles.item(current_row, 0).text()
+            print(f"ID: {licencePlateID}")
+            reply = QtWidgets.QMessageBox.question(self, 'Delete', f'Are you sure you want to delete Vehicle {licencePlateID}?',
+                                                   QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                                   QtWidgets.QMessageBox.No)
+            print("2")
+            if reply == QtWidgets.QMessageBox.Yes:
+                self.tableVehicles.removeRow(current_row)
+                self.dataManager.sql_orm.deleteVehicle(licencePlateID)
+                self.decRowCounterVehicles()
+                self.tableStats.removeRow(current_row)
+                self.decRowCounterStats()
+
+            else:
+                pass
+
+
+    def decRowCounterDrivers(self):
+        self.rowCounterTableDrivers -=1
+        self.tableDrivers.setRowCount(self.rowCounterTableDrivers)
+
+    def decRowCounterVehicles(self):
+        self.rowCounterTableVehicles -=1
+        self.tableVehicles.setRowCount(self.rowCounterTableVehicles)
+
+    def decRowCounterStats(self):
+        self.rowCounterTableStats -=1
+        self.tableStats.setRowCount(self.rowCounterTableStats)
+
+    def EditVehicles(self):
+        self.tableDrivers.cellClicked.connect(self.EditDriversDialog)
 
     def CreateTable(self, values : list, editable: bool):
         table1 = QtWidgets.QTableWidget()
@@ -174,8 +259,8 @@ class ProgramWindow(QMainWindow):
         lst = []
         for each in range(self.rowCounterTableStats-1):
             print(f"row = {each}, col = 0")
-            print(f"------------{self.table1.item((each), 0).text()}")
-            lst.append(self.table1.item(each,0).text())
+            print(f"------------{self.tableStats.item((each), 0).text()}")
+            lst.append(self.tableStats.item(each, 0).text())
         print(lst)
         if values[0] not in lst:
             counter = 0
@@ -187,8 +272,8 @@ class ProgramWindow(QMainWindow):
         lst = []
         for each in range(self.rowCounterTableDrivers-1):
             print(f"row = {each}, col = 0")
-            print(f"------------{self.table2.item((each), 0).text()}")
-            lst.append(self.table2.item(each,0).text())
+            print(f"------------{self.tableDrivers.item((each), 0).text()}")
+            lst.append(self.tableDrivers.item(each, 0).text())
         print(lst)
         if values[0] not in lst:
             counter = 0
@@ -200,8 +285,8 @@ class ProgramWindow(QMainWindow):
         lst = []
         for each in range(self.rowCounterTableVehicles-1):
             print(f"row = {each}, col = 0")
-            print(f"------------{self.table3.item((each), 0).text()}")
-            lst.append(self.table3.item(each,0).text())
+            print(f"------------{self.tableVehicles.item((each), 0).text()}")
+            lst.append(self.tableVehicles.item(each, 0).text())
         print(lst)
         if values[0] not in lst:
             counter = 0
@@ -209,26 +294,35 @@ class ProgramWindow(QMainWindow):
                 table.setItem(self.rowCounterTableVehicles-1,counter,QTableWidgetItem(str(each)))
                 counter+=1
 
+    def updateTableDrivers(self, driverLicenceID, fullName, expDate, vehicleID, phoneNumber, email):
+        self.IncRowCounterDrivers()
+        self.tableDrivers.setItem(self.rowCounterTableDrivers-1, 0, QTableWidgetItem(str(driverLicenceID)))
+        self.tableDrivers.setItem(self.rowCounterTableDrivers-1, 1, QTableWidgetItem(str(fullName)))
+        self.tableDrivers.setItem(self.rowCounterTableDrivers-1, 2, QTableWidgetItem(str(expDate)))
+        self.tableDrivers.setItem(self.rowCounterTableDrivers-1, 3, QTableWidgetItem(str(vehicleID)))
+        self.tableDrivers.setItem(self.rowCounterTableDrivers-1, 4, QTableWidgetItem(str(phoneNumber)))
+        self.tableDrivers.setItem(self.rowCounterTableDrivers - 1, 5, QTableWidgetItem(str(email)))
+
     def initialTableStatsWithStats(self):
         lst = self.getListOfLists()
         for each in lst:
             print(each)
             self.IncRowCounter()
-            self.AddValues(each, self.table1)
+            self.AddValues(each, self.tableStats)
 
     def initialTableDriversWithStats(self):
         lst = self.getListOfListsDrivers()
         for each in lst:
             print(each)
             self.IncRowCounterDrivers()
-            self.AddValuesDrivers(each, self.table2)
+            self.AddValuesDrivers(each, self.tableDrivers)
 
     def initialTableVehiclesWithStats(self):
         lst = self.getListOfListsVehicles()
         for each in lst:
             print(each)
             self.IncRowCounterVehicles()
-            self.AddValuesVehicles(each, self.table3)
+            self.AddValuesVehicles(each, self.tableVehicles)
 
     def updateValues(self):
         while True:
@@ -238,31 +332,31 @@ class ProgramWindow(QMainWindow):
             for index1, stats in enumerate(data):
                 for index2, stat in enumerate(stats):
                     print(f"updating stat: {stat} in place: {index2}, {index1}")
-                    self.table1.setItem(index1+1, index2, QTableWidgetItem(str(stat)))
+                    self.tableStats.setItem(index1 + 1, index2, QTableWidgetItem(str(stat)))
             for index1, stats in enumerate(data):
-                self.table3.setItem(index1+1, 7, QTableWidgetItem(str(stats[8])))
+                self.tableVehicles.setItem(index1 + 1, 7, QTableWidgetItem(str(stats[8])))
             for index1, stats in enumerate(data):
                 try:
                     print(f"Connection Wrap dict {self.dataManager.connectionManager.conWrap}")
                     print(f"Licence Plate: {stats[0]}\n----")
                     print(f"----{(self.dataManager.connectionManager.conWrap[stats[0]].getCurrentStats())}")
-                    self.table3.setItem(index1+1, 4, QTableWidgetItem(str("")))
+                    self.tableVehicles.setItem(index1 + 1, 4, QTableWidgetItem(str("")))
                 except:
                     pass
 
 
     def IncRowCounter(self):
         self.rowCounterTableStats+=1
-        self.table1.setRowCount(self.rowCounterTableStats)
+        self.tableStats.setRowCount(self.rowCounterTableStats)
 
     def IncRowCounterDrivers(self):
         self.rowCounterTableDrivers+=1
-        self.table2.setRowCount(self.rowCounterTableDrivers)
+        self.tableDrivers.setRowCount(self.rowCounterTableDrivers)
         print(f"SET ROW COUNTER: {self.rowCounterTableDrivers}")
 
     def IncRowCounterVehicles(self):
         self.rowCounterTableVehicles+=1
-        self.table3.setRowCount(self.rowCounterTableVehicles)
+        self.tableVehicles.setRowCount(self.rowCounterTableVehicles)
         print(f"SET ROW COUNTER: {self.rowCounterTableVehicles}")
 
     def get_cursor(self):
@@ -292,16 +386,15 @@ class ProgramWindow(QMainWindow):
         return list(ret)
 
     def showLiveData(self):
-        self.current_row = self.table1.currentRow()
-        licencePlate = self.table1.item(self.current_row, 0).text()
+        self.current_row = self.tableStats.currentRow()
+        licencePlate = self.tableStats.item(self.current_row, 0).text()
         print(f"LICENCEPLATE = {licencePlate}")
         if self.dataManager.activateLiveConnection(licencePlate):
-            d1 = dialog(self.table1, licencePlate, self.dataManager.connectionManager)
+            d1 = dialog(self.tableStats, licencePlate, self.dataManager.connectionManager)
             d1.exec_()
 
     def closeEvent(self, event):
-        pass
-
+        self.running = False
 
 class dialog(QDialog):
     def __init__(self,table1:QTableWidget, LicencePlate, ConnectionManager: ConnectionManager):
@@ -493,11 +586,13 @@ class dialog(QDialog):
 
 
 class dialog2(QDialog):
-    def __init__(self):
+    def __init__(self, dataManager, parent):
         super().__init__()
         self.setGeometry(100, 100, 750, 500)
         self.setWindowTitle("Add a driver")
         self.running = True
+        self.dataManager = dataManager
+        self.parent = parent
 
         self.startY = 25
         self.difYNext = 30
@@ -507,6 +602,7 @@ class dialog2(QDialog):
         self.b1 = QtWidgets.QPushButton("Add Driver", self)
         self.b1.move(600,450)
         self.b1.setFont(QFont("Ariel", 15))
+        self.b1.clicked.connect(self.pressed)
 
         self.lbl1 = QtWidgets.QLabel("Driver Licence ID:", self)
         self.lbl2 = QtWidgets.QLabel("Full Name:", self)
@@ -559,43 +655,52 @@ class dialog2(QDialog):
 
         self.exec_()
 
+    def pressed(self):
+        driverLicenceID = self.input1.text()
+        fullName = self.input2.text()
+        expDate = self.input3.text()
+        vehicleID = self.input4.text()
+        phoneNumber = self.input5.text()
+        email = self.input6.text()
+        #check if licence id already exists
+        Ids = []
+        for i in range(self.parent.rowCounterTableDrivers):
+            Ids.append(self.parent.tableDrivers.item(i, 0).text())
+        print(Ids)
+        if "@" not in email or "." not in email:
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText("Unvalid email address")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+        elif driverLicenceID not in Ids:
+            print("point1")
+            self.dataManager.sql_orm.updateDrivers(driverLicenceID, fullName, expDate, vehicleID, phoneNumber, email)
+            print("point2")
+            self.parent.updateTableDrivers(driverLicenceID, fullName, expDate, vehicleID, phoneNumber, email)
+            print("point3")
+            self.close()
+        else:
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText("Driver Licence ID already exists")
+            msg.setWindowTitle("Error")
+            msg.exec_()
 
-    def ThreadOfUpdatingLiveData(self,LicencePlate):
-        while(self.running):
-            data = self.connectionManager.conWrap[LicencePlate].get_data()
-            msg = CurrData()
-            msg.ParseFromString(data)
-            counter = 0
-            while self.running:
-                try:
-                    licencePlateTry = self.table1.item(counter, 0).text()
-                    if licencePlateTry == LicencePlate:
-                        print(f"-----------------------Counter: {counter}-----------------------")
-                        break
-
-                    counter+=1
-                except:
-                    break
-            self.lblLine20.setText(self.table1.item(counter,8).text())
-            self.lblText21.setText(str(msg.FUEL_CONSUMPTION))
-            self.lblText22.setText(self.table1.item(counter,4).text())
-            self.lblText23.setText(str(msg.SPEED))
-            self.lblText24.setText(str(self.table1.item(counter,5).text()))
-            self.lblText25.setText(str(self.table1.item(counter,6).text())[:6])
-            self.lblText26.setText(str(msg.RPM)[:6])
-            self.lblText27.setText(str(self.table1.item(counter,7).text())[:6])
-            time.sleep(1)
-
-            print(msg)
 
     def closeEvent(self, event):
-        self.connectionManager.conWrap[self.LicencePlate].update(10)
-        self.running = False
+        print("CLOSING")
+
+
+
+
 
 class GUI:
-    def __init__(self,datamanager):
+    def __init__(self, datamanager):
+        self.dataManager = datamanager
         app = QApplication(sys.argv)
-        programWindow = ProgramWindow(datamanager)
+        self.programWindow = ProgramWindow(datamanager)
 
-        programWindow.show()
+
+        self.programWindow.show()
         sys.exit(app.exec_())
