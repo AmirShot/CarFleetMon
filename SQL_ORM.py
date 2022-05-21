@@ -139,6 +139,8 @@ class SQL_ORM:
             #print(f"------------------------Creating a new line {id}-------------------------")
             command = f"""INSERT INTO Stats VALUES ("{id}","0",1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,TRUE);"""
             cursor.execute(command)
+            command = f"""INSERT INTO Vehicles VALUES ("{id}","_","_",0,0,"_","_",0.0,"_","_");"""
+            cursor.execute(command)
         else:
             command = f"""UPDATE Stats SET "Is Online" = TRUE WHERE "Licence Plate" = "{id}";"""
             cursor.execute(command)
@@ -188,6 +190,18 @@ class SQL_ORM:
         sql.execute(command)
         sql.commit()
         sql.close()
+
+    def updateVehicles(self, make, model, year, driver, joinDate, LicencePlate):
+        print("1")
+        sql, cursor = self.get_cursor()
+        print("2")
+        command = f"""UPDATE Vehicles SET "Make" = "{make}", "Model" = "{model}", "Year" = "{year}", "Driver" = "{driver}", "join Date" = "{joinDate}" WHERE "Licence Plate" = "{LicencePlate}";"""
+        sql.execute(command)
+        print("3")
+        sql.commit()
+        print("4")
+        sql.close()
+        print("5")
 
 
 if __name__ == "__main__":
