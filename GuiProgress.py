@@ -1,50 +1,85 @@
-from PyQt5 import QtGui
-
-from PyQt5.QtWidgets import QApplication, QMainWindow
-
 import sys
 
-class Window(QMainWindow):
+from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtWidgets import QApplication, QPushButton, QHBoxLayout, QTabWidget, QVBoxLayout, QWidget, QMainWindow, QGroupBox, QTableWidget,QTableWidgetItem,QMdiSubWindow, QDialog
+from PyQt5.QtGui import QPainter, QBrush, QPen, QFont
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import pyqtSlot
+import sqlite3
+from DataManager import DataManager
+from ConnectionManager import ConnectionManager
+from proto1_pb2 import *
+import threading
+from proto1_pb2 import *
 
+class login(QDialog):
     def __init__(self):
+        #, datamanager: DataManager
+        super(login, self).__init__()
+        self.setup_main_window()
+        self.designUI()
 
-        super().__init__()
+    def setup_main_window(self):
+        self.widget = QWidget(self)
+        self.layout = QtWidgets.QVBoxLayout()
+        self.widget.setLayout(self.layout)
+        self.resize( 1200, 1000)
+        self.setWindowTitle( "ProjectX" )
 
-        self.title = "PyQt5 Drawing Tutorial"
+    def designUI(self):
+        self.inputUserNameLogin = QtWidgets.QLineEdit()
+        self.labelUserName = QtWidgets.QLabel(text="login:")
+        self.btnSwitchScreens = QtWidgets.QPushButton(text="switch")
+        self.layout.addWidget(self.labelUserName)
+        self.layout.addWidget(self.inputUserNameLogin)
+        self.layout.addWidget(self.btnSwitchScreens)
+        self.labelUserName.move(100, 100)
+        self.inputUserNameLogin.move(100, 150)
+        self.btnSwitchScreens.clicked.connect(self.switchTo)
 
-        self.top= 150
+    def switchTo(self):
+        widget.setCurrentIndex(widget.currentIndex() + 1)
 
-        self.left= 150
+class register(QDialog):
+    def __init__(self):
+        #, datamanager: DataManager
+        super(register, self).__init__()
+        self.setup_main_window()
+        self.designUI()
 
-        self.width = 500
+    def setup_main_window(self):
+        self.widget = QWidget(self)
+        self.layout = QtWidgets.QVBoxLayout()
+        self.widget.setLayout(self.layout)
+        self.resize( 1200, 1000)
+        self.setWindowTitle( "ProjectX" )
 
-        self.height = 500
+    def designUI(self):
+        self.inputUserNameLogin = QtWidgets.QLineEdit()
+        self.labelUserName = QtWidgets.QLabel(text="Register:")
+        self.btnSwitchScreens = QtWidgets.QPushButton(text="switch")
+        self.layout.addWidget(self.labelUserName)
+        self.layout.addWidget(self.inputUserNameLogin)
+        self.layout.addWidget(self.btnSwitchScreens)
+        self.labelUserName.move(100,100)
+        self.inputUserNameLogin.move(100, 150)
+        self.btnSwitchScreens.clicked.connect(self.switchTo)
 
-        self.InitWindow()
+    def switchTo(self):
+        widget.setCurrentIndex(widget.currentIndex()-1)
 
-    def InitWindow(self):
+app = QApplication(sys.argv)
+widget = QtWidgets.QStackedWidget()
+mainwindow = login()
+registerWindow = register()
+widget.addWidget(mainwindow.widget)
+widget.addWidget(registerWindow.widget)
+widget.show()
 
-        self.setWindowTitle(self.title)
-
-        self.setGeometry(self.top, self.left, self.width, self.height)
-
-        self.show()
-
-        painter = QPainter()
-
-        painter.begin(self)
-
-        painter.setRenderHint(QPainter.Antialiasing)
-
-        painter.setPen(QtCore.Qt.red)
-
-        painter.setBrush(QtCore.Qt.white)
-
-        painter.drawLine(400, 100, 100, 100)
+try:
+    sys.exit(app.exec_())
+except:
+    print("Exiting")
 
 
-App = QApplication(sys.argv)
 
-window = Window()
-
-sys.exit(App.exec())

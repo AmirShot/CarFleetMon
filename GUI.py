@@ -16,6 +16,7 @@ from proto1_pb2 import *
 import threading
 from proto1_pb2 import *
 
+
 class ProgramWindow(QMainWindow):
     def __init__(self, datamanager: DataManager):
         QMainWindow.__init__(self)
@@ -824,16 +825,96 @@ class dialogEditVehicle(QDialog):
     def closeEvent(self, event):
         print("CLOSING")
 
+#############################################################################################################
+#############################################################################################################
+############################################################################################################
 
+class login(QDialog):
+    def __init__(self,parent):
+        #, datamanager: DataManager
+        super(login, self).__init__()
+        self.setup_main_window()
+        self.designUI()
+        self.mainWindowLoginRegister = parent
+        print("Created dialog loging")
+
+    def setup_main_window(self):
+        self.widget = QWidget(self)
+        self.layout = QtWidgets.QVBoxLayout()
+        self.widget.setLayout(self.layout)
+        self.resize( 1200, 1000)
+        self.setWindowTitle( "ProjectX" )
+
+    def designUI(self):
+        self.inputUserNameLogin = QtWidgets.QLineEdit()
+        self.labelUserName = QtWidgets.QLabel(text="login:")
+        self.btnSwitchScreens = QtWidgets.QPushButton(text="switch")
+        self.layout.addWidget(self.labelUserName)
+        self.layout.addWidget(self.inputUserNameLogin)
+        self.layout.addWidget(self.btnSwitchScreens)
+        self.labelUserName.move(100, 100)
+        self.inputUserNameLogin.move(100, 150)
+        self.btnSwitchScreens.clicked.connect(self.switchTo)
+
+    def switchTo(self):
+        print("Trying to switch")
+        self.mainWindowLoginRegister.widget.setCurrentIndex(self.mainWindowLoginRegister.widget.currentIndex() + 1)
+
+class register(QDialog):
+    def __init__(self,parent):
+        #, datamanager: DataManager
+        super(register, self).__init__()
+        self.setup_main_window()
+        self.designUI()
+        self.mainWindowLoginRegister = parent
+        print("Created dialog register")
+
+    def setup_main_window(self):
+        self.widget = QWidget(self)
+        self.layout = QtWidgets.QVBoxLayout()
+        self.widget.setLayout(self.layout)
+        self.resize( 1200, 1000)
+        self.setWindowTitle( "ProjectX" )
+
+    def designUI(self):
+        self.inputUserNameLogin = QtWidgets.QLineEdit()
+        self.labelUserName = QtWidgets.QLabel(text="Register:")
+        self.btnSwitchScreens = QtWidgets.QPushButton(text="switch")
+        self.layout.addWidget(self.labelUserName)
+        self.layout.addWidget(self.inputUserNameLogin)
+        self.layout.addWidget(self.btnSwitchScreens)
+        self.labelUserName.move(100,100)
+        self.inputUserNameLogin.move(100, 150)
+        self.btnSwitchScreens.clicked.connect(self.switchTo)
+
+    def switchTo(self):
+        print("Trying to switch")
+        self.mainWindowLoginRegister.widget.setCurrentIndex(self.mainWindowLoginRegister.widget.currentIndex()-1)
 
 
 
 class GUI:
     def __init__(self, datamanager):
-        self.dataManager = datamanager
-        app = QApplication(sys.argv)
-        self.programWindow = ProgramWindow(datamanager)
+        self.app = QApplication(sys.argv)
+        self.widget = QtWidgets.QStackedWidget()
+        self.mainwindow = login(self)
+        self.registerWindow = register(self)
+        self.widget.addWidget(self.mainwindow.widget)
+        self.widget.addWidget(self.registerWindow.widget)
+        self.widget.show()
+
+        try:
+            sys.exit(self.app.exec_())
+        except:
+            print("Exiting")
 
 
-        self.programWindow.show()
-        sys.exit(app.exec_())
+        #self.dataManager = datamanager
+        #app = QApplication(sys.argv)
+        #self.programWindow = ProgramWindow(datamanager)
+#
+#
+        #self.programWindow.show()
+        #sys.exit(app.exec_())
+
+GUI(datamanager=None)
