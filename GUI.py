@@ -347,8 +347,9 @@ class ProgramWindow(QDialog):
 
     def updateValues(self):
         while True:
+
             try:
-                time.sleep(5)
+                time.sleep(1)
                 data = self.dataManager.getStats()
                 self.car_data = CurrData()
                 for index1, stats in enumerate(data):
@@ -602,7 +603,7 @@ class dialog(QDialog):
                     counter+=1
                 except:
                     break
-            self.lblLine20.setText(self.table1.item(counter,8).text()[:5])
+            self.lblLine20.setText(str(msg.AVG_FUEL_CONSUMPTION)[:5])
             self.lblText21.setText(str(msg.FUEL_CONSUMPTION)[:5])
             self.lblText22.setText(self.table1.item(counter,4).text())
             self.lblText23.setText(str(msg.SPEED))

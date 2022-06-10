@@ -45,7 +45,7 @@ class DataManager:
                 if not self._active_connections[cw]:
                     print("CLOSING A CONNECTION")
                     self.close_connection(cw)
-            time.sleep(5)
+            time.sleep(self._updatePeriod)
 
     def activateLiveConnection(self, LicencePlate:str):
         try:

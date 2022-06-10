@@ -130,6 +130,7 @@ class ObdClient:
             ##############################
             time.sleep(self.timeToWait)
 
+
     def update_kms_and_fuel(self, file):
         print(f"""
         ------------------------------------
