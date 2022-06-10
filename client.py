@@ -18,8 +18,10 @@ class ObdClient:
         self.connection = Connection("log.csv")
         self.sumOfFuelCons = 0
         self.initialDistance = 0
+        self.initialFuelUsed = 0
         self.fuelEconomy = 0
         self.totalKms = 0
+        self.totalFuel = 0
         self.timeToWait = 0
         self.running = True
         with open("CarData.txt", "r") as file:
@@ -67,13 +69,25 @@ class ObdClient:
             print("no kms were written")
         file.close()
         ####################################
+        # read initial fuel from file
+        file2 = open("logFuel.txt", "r+")
+        content = file2.read()
+        print(f"read: {content}")
+        try:
+            print(content)
+            self.initialFuelUsed = float(content)
+        except:
+            file2.write("0")
+            print("no kms were written")
+        file2.close()
+        ####################################
 
         # main loop
         print(f"Sample: {self.connection.sample(self.sample)}")
         while self.connection.sample(self.sample):
             time_diff_measured = (self.sample.timeStamp - self.current_time_stamp).microseconds / 1000000
             self.CurrentRideTotalDistance += self.sample.speed * time_diff_measured / 3600
-            self.update_kms(file)
+            self.update_kms_and_fuel(file)
             if self.sample.engineOn:
                 self.kmWithEngineOn += self.sample.speed * time_diff_measured / 3600
                 self.sumOfFuelCons += self.sample.getCurrFuelConsumption() * time_diff_measured / 0.752 / 1000
@@ -101,6 +115,10 @@ class ObdClient:
             message.FUEL_CONSUMPTION = self.fuelEconomy
             message.TOTAL_DISTANCE_SINCE_JOIN = self.totalKms
             message.DTC = self.sample.DTC
+            try:
+                message.AVG_FUEL_CONSUMPTION = self.totalKms / self.totalFuel
+            except:
+                message.AVG_FUEL_CONSUMPTION = 0
             ##############################
 
             # send message
@@ -112,12 +130,26 @@ class ObdClient:
             ##############################
             time.sleep(self.timeToWait)
 
-    def update_kms(self, file):
+    def update_kms_and_fuel(self, file):
+        print(f"""
+        ------------------------------------
+        
+        total kms of all times: {self.totalKms}
+        total fuel used: {self.totalFuel}
+        total fuel used for this ride: {self.sumOfFuelCons}
+        
+        ------------------------------------
+        """)
         file = open("logKm.txt", "w+")
         self.totalKms = self.initialDistance + self.CurrentRideTotalDistance
         print(f"totalKms = {self.totalKms}--------------------")
         file.write(f"{self.totalKms}")
         file.close()
+        file2 = open("logFuel.txt", "w+")
+        self.totalFuel = self.initialFuelUsed + self.sumOfFuelCons
+        print(f"totalFuel = {self.totalFuel}--------------------")
+        file2.write(f"{self.totalFuel}")
+        file2.close()
 
 
 

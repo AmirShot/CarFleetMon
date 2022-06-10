@@ -117,9 +117,7 @@ class SQL_ORM:
         stats["Update Counter"] = stats["Update Counter"] + 1
         stats["Avg Speed"] /= stats["Update Counter"]
         stats["Avg RPM"] /= stats["Update Counter"]
-        if stats["Trip Counter"] == 1:
-            stats["Avg Fuel Economy"] = car_data.FUEL_CONSUMPTION
-
+        stats["Avg Fuel Economy"] = car_data.AVG_FUEL_CONSUMPTION
         command = """UPDATE Stats SET """
         for each in stats:
             try:
