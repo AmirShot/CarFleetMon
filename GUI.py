@@ -15,15 +15,17 @@ from ConnectionManager import ConnectionManager
 from proto1_pb2 import *
 import threading
 from proto1_pb2 import *
+import hashlib
 
 
-class ProgramWindow(QMainWindow):
+class ProgramWindow(QDialog):
     def __init__(self, datamanager: DataManager):
-        QMainWindow.__init__(self)
+        super(ProgramWindow, self).__init__()
         self.rowCounterTableStats = 0
         self.rowCounterTableDrivers = 0
         self.rowCounterTableVehicles = 0
         self.homeDir = "."
+        self.centralwidget = QWidget(self)
         self.setup_main_window()
         self.set_window_layout()
         self.clicked = False
@@ -35,9 +37,6 @@ class ProgramWindow(QMainWindow):
 
 
     def setup_main_window(self):
-        self.centralwidget = QWidget()
-        self.setCentralWidget(self.centralwidget)
-        self.resize( 1200, 1000)
         self.setWindowTitle( "ProjectX" )
 
 
@@ -169,8 +168,6 @@ class ProgramWindow(QMainWindow):
         lay.addWidget(self.tabs_2)
 
         self.tableStats.cellClicked.connect(self.showLiveData)
-
-        self.show()
 
     def editVehicle(self, datamanager):
         current_row = self.tableVehicles.currentRow()
@@ -362,7 +359,9 @@ class ProgramWindow(QMainWindow):
                         self.IncRowCounterVehicles()
 
                 for index1, stats in enumerate(data):
+                    print(f"stats: {stats}")
                     self.tableVehicles.setItem(index1 + 1, 7, QTableWidgetItem(str(stats[8])))
+                    self.tableVehicles.setItem(index1 + 1, 6, QTableWidgetItem(str(stats[7])))
                     self.tableVehicles.setItem(index1 + 1, 0, QTableWidgetItem(str(stats[0])))
                 for index1, stats in enumerate(data):
                     try:
@@ -577,6 +576,7 @@ class dialog(QDialog):
 
         self.lblText26 = QtWidgets.QLabel("0", self)
         self.lblText26.setFont(QFont("Ariel", 20))
+        self.lblText26.setFixedWidth(200)
         self.lblText26.move(xPos2-xDiff, start2 + dif * 6)
 
         self.lblText27 = QtWidgets.QLabel("0", self)
@@ -603,7 +603,7 @@ class dialog(QDialog):
                 except:
                     break
             self.lblLine20.setText(self.table1.item(counter,8).text()[:5])
-            self.lblText21.setText(str(msg.FUEL_CONSUMPTION))
+            self.lblText21.setText(str(msg.FUEL_CONSUMPTION)[:5])
             self.lblText22.setText(self.table1.item(counter,4).text())
             self.lblText23.setText(str(msg.SPEED))
             self.lblText24.setText(str(self.table1.item(counter,5).text())[:5])
@@ -615,7 +615,10 @@ class dialog(QDialog):
             print(msg)
 
     def closeEvent(self, event):
-        self.connectionManager.conWrap[self.LicencePlate].update(10)
+        try:
+            self.connectionManager.conWrap[self.LicencePlate].update(10)
+        except:
+            pass
         self.running = False
 
 
@@ -830,12 +833,13 @@ class dialogEditVehicle(QDialog):
 ############################################################################################################
 
 class login(QDialog):
-    def __init__(self,parent):
+    def __init__(self,parent,datamanager):
         #, datamanager: DataManager
         super(login, self).__init__()
         self.setup_main_window()
         self.designUI()
         self.mainWindowLoginRegister = parent
+        self.dataManager = datamanager
         print("Created dialog loging")
 
     def setup_main_window(self):
@@ -846,61 +850,63 @@ class login(QDialog):
         self.setWindowTitle( "ProjectX" )
 
     def designUI(self):
+        self.labelUserName = QtWidgets.QLabel(text="Username:")
         self.inputUserNameLogin = QtWidgets.QLineEdit()
-        self.labelUserName = QtWidgets.QLabel(text="login:")
-        self.btnSwitchScreens = QtWidgets.QPushButton(text="switch")
+        self.labelPassword = QtWidgets.QLabel(text="Password:")
+        self.inputPasswordLogin = QtWidgets.QLineEdit()
+        self.inputPasswordLogin.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.btnSwitchScreens = QtWidgets.QPushButton(text="Log In")
         self.layout.addWidget(self.labelUserName)
         self.layout.addWidget(self.inputUserNameLogin)
+        self.layout.addWidget(self.labelPassword)
+        self.layout.addWidget(self.inputPasswordLogin)
         self.layout.addWidget(self.btnSwitchScreens)
-        self.labelUserName.move(100, 100)
-        self.inputUserNameLogin.move(100, 150)
         self.btnSwitchScreens.clicked.connect(self.switchTo)
 
-    def switchTo(self):
-        print("Trying to switch")
-        self.mainWindowLoginRegister.widget.setCurrentIndex(self.mainWindowLoginRegister.widget.currentIndex() + 1)
-
-class register(QDialog):
-    def __init__(self,parent):
-        #, datamanager: DataManager
-        super(register, self).__init__()
-        self.setup_main_window()
-        self.designUI()
-        self.mainWindowLoginRegister = parent
-        print("Created dialog register")
-
-    def setup_main_window(self):
-        self.widget = QWidget(self)
-        self.layout = QtWidgets.QVBoxLayout()
-        self.widget.setLayout(self.layout)
-        self.resize( 1200, 1000)
-        self.setWindowTitle( "ProjectX" )
-
-    def designUI(self):
-        self.inputUserNameLogin = QtWidgets.QLineEdit()
-        self.labelUserName = QtWidgets.QLabel(text="Register:")
-        self.btnSwitchScreens = QtWidgets.QPushButton(text="switch")
-        self.layout.addWidget(self.labelUserName)
-        self.layout.addWidget(self.inputUserNameLogin)
-        self.layout.addWidget(self.btnSwitchScreens)
-        self.labelUserName.move(100,100)
-        self.inputUserNameLogin.move(100, 150)
-        self.btnSwitchScreens.clicked.connect(self.switchTo)
+        self.labelUserName.setFont(QFont("Ariel", 15))
+        self.inputUserNameLogin.setFont(QFont("Ariel", 15))
+        self.labelPassword.setFont(QFont("Ariel", 15))
+        self.inputPasswordLogin.setFont(QFont("Ariel", 15))
+        self.btnSwitchScreens.setFont(QFont("Ariel", 15))
 
     def switchTo(self):
-        print("Trying to switch")
-        self.mainWindowLoginRegister.widget.setCurrentIndex(self.mainWindowLoginRegister.widget.currentIndex()-1)
+        username = self.inputUserNameLogin.text()
+        password = self.hash_passwd(self.inputPasswordLogin.text())
+
+        if self.dataManager.sql_orm.checkPassword(username, password):
+            #in case right
+            print("GOT RIGHT")
+            print("Trying to switch")
+            self.mainWindowLoginRegister.widget.setCurrentIndex(self.mainWindowLoginRegister.widget.currentIndex() + 1)
+            print(self.mainWindowLoginRegister)
+            self.mainWindowLoginRegister.widget.setGeometry(100,50,1200,1000)
+            print("changed size")
+        else:
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText("Wrong Password or Username")
+            msg.setWindowTitle("Error")
+            msg.exec_()
+
+    def hash_passwd(self, passwd):
+        m = hashlib.sha256()
+        m.update(passwd.encode())
+        return m.hexdigest()
 
 
-
-class GUI:
+class GUI(QMainWindow):
     def __init__(self, datamanager):
         self.app = QApplication(sys.argv)
+        QMainWindow.__init__(self)
+        self.dataManager = datamanager
         self.widget = QtWidgets.QStackedWidget()
-        self.mainwindow = login(self)
-        self.registerWindow = register(self)
+        self.mainwindow = login(self,datamanager)
+        self.workWindow = ProgramWindow(datamanager)
         self.widget.addWidget(self.mainwindow.widget)
-        self.widget.addWidget(self.registerWindow.widget)
+        self.widget.addWidget(self.workWindow.centralwidget)
+        self.widget.setWindowTitle("OBDSmartView")
+
+
         self.widget.show()
 
         try:
@@ -908,13 +914,3 @@ class GUI:
         except:
             print("Exiting")
 
-
-        #self.dataManager = datamanager
-        #app = QApplication(sys.argv)
-        #self.programWindow = ProgramWindow(datamanager)
-#
-#
-        #self.programWindow.show()
-        #sys.exit(app.exec_())
-
-GUI(datamanager=None)

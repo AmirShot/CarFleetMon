@@ -1,7 +1,7 @@
 import sqlite3
 import time
 from datetime import datetime
-
+import hashlib
 from proto1_pb2 import *
 
 dictDrivers = {'Driver Licence ID': "VARCHAR(255)",
@@ -33,6 +33,8 @@ dictStats = {"Licence Plate": "VARCHAR(255)",
               "Avg Fuel Economy": "FLOAT",
               "Curr Fuel Economy": "FLOAT",
               "Is Online": "BOOL"}
+dictUsers = {"Username": "VARCHAR(256)",
+             "Password": "VARCHAR(256)"}
 
 class SQL_ORM:
     def __init__(self, home_dir):
@@ -42,6 +44,7 @@ class SQL_ORM:
         self.table("Vehicles", dictVehicles)
         self.table("Drivers", dictDrivers)
         self.table("Stats", dictStats)
+        self.table("Users", dictUsers)
         #print("CREATED SQL CONNECTION _____________________________________________")
 
     def get_cursor(self):
@@ -116,6 +119,7 @@ class SQL_ORM:
         stats["Avg RPM"] /= stats["Update Counter"]
         if stats["Trip Counter"] == 1:
             stats["Avg Fuel Economy"] = car_data.FUEL_CONSUMPTION
+
         command = """UPDATE Stats SET """
         for each in stats:
             try:
@@ -203,6 +207,29 @@ class SQL_ORM:
         sql.close()
         print("5")
 
+    def checkPassword(self, username, password):
+        print("I was called")
+        sql, cursor = self.get_cursor()
+        try:
+            cursor.execute(f"""SELECT Password FROM Users WHERE Username = "{username}";""")
+            Password = str(cursor.fetchall()[0][0])
+            if Password == password:
+                return True
+        except:
+            return False
+        sql.close()
 
+    def CreateUser(self, username, password):
+        sql, cursor = self.get_cursor()
+        command = f"""INSERT INTO Users VALUES ("{username}","{password}");"""
+        cursor.execute(command)
+        sql.commit()
+        sql.close()
+
+def hash_passwd(passwd):
+    m = hashlib.sha256()
+    m.update(passwd.encode())
+    return m.hexdigest()
 if __name__ == "__main__":
     sql = SQL_ORM(".")
+
